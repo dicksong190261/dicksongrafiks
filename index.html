@@ -1,268 +1,345 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
-<meta name="google-site-verification" content="y7JI5QM7vL5AVCcHercBnSKsN3Bh8IDQvKQUTdXQOTs" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DicksonGrafiks | Visuals That Speak</title>
 
-<title>DicksonGrafiks | Graphic Design, Photography & Video Editing</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-<meta name="description" content="DicksonGrafiks provides professional graphic design, photography, video editing and AI solutions for businesses and brands. Design. Speed. Trust.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+html{scroll-behavior:smooth;}
+body{background:#0a0a0a;color:#fff;overflow-x:hidden;}
 
-<meta name="keywords" content="DicksonGrafiks, graphic design Nigeria, flyer design, poster design, logo design, photography Benin City, video editing, AI business solutions">
+/* NAV */
+nav{display:flex;justify-content:space-between;align-items:center;padding:20px 8%;position:fixed;width:100%;background:rgba(0,0,0,0.6);backdrop-filter:blur(12px);z-index:1000;}
+.logo{font-weight:800;font-size:22px;color:#00f7ff;}
+ul{display:flex;gap:25px;list-style:none;}
+ul li a{color:#fff;text-decoration:none;font-size:14px;transition:.3s;}
+ul li a:hover{color:#00f7ff;}
 
-<meta name="author" content="Goodness Dickson">
+section{padding:100px 8%;position:relative;z-index:2;}
+h2{font-size:32px;margin-bottom:10px;}
+p.section-text{color:#aaa;margin-bottom:30px;max-width:600px;}
 
-<meta name="robots" content="index, follow">
-
-<meta name="theme-color" content="#0a0a0a">
-
-<link rel="canonical" href="https://dicksongrafiks.netlify.app">
-
-<!-- Open Graph for social sharing -->
-
-<meta property="og:title" content="DicksonGrafiks - Design. Speed. Trust.">
-
-<meta property="og:description" content="Professional graphic design, photography, video editing and AI services for brands and businesses.">
-
-<meta property="og:type" content="website">
-
-<meta property="og:url" content="https://dicksongrafiks.netlify.app">
-
-<meta property="og:image" content="images/work5.jpg">
-
-<!-- Twitter Preview -->
-
-<meta name="twitter:card" content="summary_large_image">
-
-<meta name="twitter:title" content="DicksonGrafiks">
-
-<meta name="twitter:description" content="Creative graphics, photography and video editing services.">
-
-<meta name="twitter:image" content="images/work5.jpg">
-
-<link rel="stylesheet" href="style.css">
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
-
-<!-- Structured Data for Google -->
-
-<script type="application/ld+json">
-{
- "@context": "https://schema.org",
- "@type": "CreativeAgency",
- "name": "DicksonGrafiks",
- "url": "https://dicksongrafiks.netlify.app",
- "email": "edickson774@gmail.com",
- "sameAs": [
- "https://www.behance.net/goodnessdickson1"
- ],
- "description": "Graphic design, photography, video editing and AI solutions for businesses.",
- "founder": {
- "@type": "Person",
- "name": "Goodness Dickson"
- }
+/* HERO */
+.hero{height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;}
+.hero::before{
+content:"";
+position:absolute;
+width:700px;height:700px;
+background:conic-gradient(from 180deg,#00f7ff22,transparent,#00f7ff22);
+border-radius:50%;
+filter:blur(100px);
+animation:rotate 25s linear infinite;
 }
-</script>
+@keyframes rotate{0%{transform:rotate(0);}100%{transform:rotate(360deg);}}
+.hero h1{font-size:clamp(32px,6vw,60px);font-weight:800;z-index:1;}
+.hero span{color:#00f7ff;}
+.hero p{color:#bbb;margin-top:10px;z-index:1;}
 
+.btn{margin-top:20px;padding:12px 25px;border:none;background:#00f7ff;color:#000;font-weight:600;border-radius:30px;cursor:pointer;transition:.3s;}
+.btn:hover{transform:scale(1.05);}
+
+/* GRID */
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:15px;
+max-width:1000px;
+margin:auto;
+}
+.card{
+position:relative;
+background:#111;
+border-radius:14px;
+overflow:hidden;
+aspect-ratio:1/1;
+transition:.4s;
+cursor:pointer;
+opacity:0;
+transform:translateY(40px);
+}
+
+/* IMAGE */
+.card img{
+width:100%;
+height:100%;
+object-fit:cover;
+object-position:top;
+transition:transform .4s ease, filter .4s ease;
+}
+
+/* OVERLAY */
+.card::before{
+content:"";
+position:absolute;
+inset:0;
+background:linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+opacity:0;
+transition:.4s;
+}
+
+/* TITLE */
+.card .info{
+position:absolute;
+bottom:15px;
+left:15px;
+color:#fff;
+font-size:14px;
+opacity:0;
+transform:translateY(10px);
+transition:.4s;
+}
+
+.card:hover img{
+transform:scale(1.08);
+filter:brightness(0.8);
+}
+
+.card:hover::before{
+opacity:1;
+}
+
+.card:hover .info{
+opacity:1;
+transform:translateY(0);
+}
+
+.card:hover{
+transform:translateY(-8px) scale(1.02);
+box-shadow:0 0 25px #00f7ff33;
+}
+
+/* KEY FIX: TOP-FOCUS CROPPING */
+.card img{
+width:100%;
+height:100%;
+object-fit:cover;
+object-position:top;
+filter:brightness(0.95);
+}
+
+.card:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 0 25px #00f7ff33;}
+
+/* TOOLTIP */
+.card::after{
+content:"Tap to view";
+position:absolute;
+bottom:10px;
+left:50%;
+transform:translateX(-50%);
+background:rgba(0,0,0,0.7);
+padding:6px 12px;
+border-radius:20px;
+font-size:12px;
+opacity:0;
+transition:.3s;
+}
+.card:hover::after{opacity:1;}
+
+/* VIDEO */
+.video iframe{width:100%;height:100%;border:none;}
+
+.divider{height:1px;background:#222;margin:60px 0;}
+
+/* CLIENTS */
+.clients{display:flex;flex-wrap:wrap;gap:15px;margin-top:20px;}
+.client{padding:12px 20px;border:1px solid #222;border-radius:30px;color:#ccc;font-size:14px;transition:.3s;}
+.client:hover{border-color:#00f7ff;color:#00f7ff;}
+
+footer{text-align:center;padding:30px;color:#777;}
+
+/* MODAL */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);justify-content:center;align-items:center;z-index:2000;}
+.modal img{max-width:90%;max-height:90%;border-radius:10px;}
+
+/* SCROLL ANIMATION */
+.show{opacity:1 !important;transform:translateY(0) !important;transition:all 0.8s ease;}
+
+/* MOUSE GLOW EFFECT */
+.glow{
+position:fixed;
+top:0;left:0;
+width:300px;height:300px;
+border-radius:50%;
+pointer-events:none;
+background:radial-gradient(circle,#00f7ff33,transparent 70%);
+filter:blur(60px);
+transform:translate(-50%,-50%);
+z-index:1;
+}
+
+@media(max-width:768px){
+nav ul{display:none;}
+section{padding:80px 6%;}
+.glow{display:none;} /* disable on mobile for performance */
+}
+</style>
 </head>
-
 <body>
 
-<header>
+<div class="glow" id="glow"></div>
 
-<nav class="navbar">
-
-<h1 class="logo">DicksonGrafiks</h1>
-
-<ul class="nav-links">
+<nav>
+<div class="logo">DicksonGrafiks</div>
+<ul>
 <li><a href="#home">Home</a></li>
-<li><a href="#about">About</a></li>
-<li><a href="#services">Services</a></li>
-<li><a href="#portfolio">Portfolio</a></li>
+<li><a href="#video">Video</a></li>
+<li><a href="#graphics">Graphics</a></li>
+<li><a href="#photo">Photo</a></li>
+<li><a href="#uiux">UI/UX</a></li>
+<li><a href="#clients">Clients</a></li>
 <li><a href="#contact">Contact</a></li>
 </ul>
-
 </nav>
 
-</header>
-
-
-
-<!-- HERO -->
-
 <section id="home" class="hero">
-
-<div class="hero-content">
-
-<h2 class="hero-title">
-DESIGN. <span>SPEED.</span> TRUST
-</h2>
-
-<p>Graphics • Photography • Video Editing • AI For Business</p>
-
-<a href="#contact" class="btn">Send Message</a>
-
+<div>
+<h1>Visuals That <span>Speak</span></h1>
+<p>We craft powerful visuals that elevate brands and tell unforgettable stories.</p>
+<button class="btn" onclick="document.getElementById('contact').scrollIntoView()">Work With Me</button>
 </div>
-
 </section>
 
-
-
-<!-- ABOUT -->
-
-<section id="about" class="about" data-aos="fade-up">
-
-<h2>About DicksonGrafiks</h2>
-
-<p>
-
-At DicksonGrafiks we combine creativity, speed and reliability to deliver stunning visuals for brands and individuals.
-
-From eye-catching graphics to professional photography and cinematic video editing, we help businesses stand out with powerful visual storytelling.
-
-Our mission is simple: deliver **Design, Speed and Trust** to every client.
-
-</p>
-
+<section id="video">
+<h2>Video Editing</h2>
+<p class="section-text">Engaging, high-quality video edits delivered with cinematic precision.</p>
+<div class="grid">
+<div class="card video"><iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID"></iframe></div>
+<div class="card video"><iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID"></iframe></div>
+</div>
 </section>
 
+<div class="divider"></div>
 
-
-<!-- SERVICES -->
-
-<section id="services" class="services" data-aos="fade-up">
-
-<h2>Services</h2>
-
-<div class="service-grid">
-
-<div class="service">
-
-<h3>Graphic Design</h3>
-
-<p>Posters, flyers, logos and social media graphics for brands and businesses.</p>
-
+<section id="graphics">
+<h2>Graphic Design</h2>
+<p class="section-text">Clean and compelling visuals tailored for strong brand communication.</p>
+<div class="grid">
+<div class="card"><img src="images/work2.jpg" onclick="openModal(this.src)"></div>
+<div class="card"><img src="images/work5.jpg" onclick="openModal(this.src)"></div>
 </div>
-
-
-<div class="service">
-
-<h3>Photography</h3>
-
-<p>Professional photography for brands, products and special events.</p>
-
-</div>
-
-
-<div class="service">
-
-<h3>Video Editing</h3>
-
-<p>Cinematic editing, reels and visual storytelling for content creators.</p>
-
-</div>
-
-
-<div class="service">
-
-<h3>AI For Business</h3>
-
-<p>Helping businesses use AI tools to improve marketing, workflow and creativity.</p>
-
-</div>
-
-</div>
-
 </section>
 
+<div class="divider"></div>
 
-
-<!-- PORTFOLIO -->
-
-<section id="portfolio" class="portfolio" data-aos="zoom-in">
-
-<h2>Portfolio</h2>
-
-<div class="portfolio-grid">
-
-<div class="card">
-<img src="images/work5.jpg" alt="Graphic design poster by DicksonGrafiks">
+<section id="photo">
+<h2>Photo Editing</h2>
+<p class="section-text">Refined edits with precision, clarity, and professional polish.</p>
+<div class="grid">
+<div class="card"><img src="images/work3.jpg" onclick="openModal(this.src)"></div>
+<div class="card"><img src="images/work4.jpg" onclick="openModal(this.src)"></div>
 </div>
-
-<div class="card">
-<img src="images/work2.jpg" alt="Creative flyer design">
-</div>
-
-<div class="card">
-<img src="images/work3.jpg" alt="Brand graphic design">
-</div>
-
-<div class="card">
-<img src="images/work4.jpg" alt="Professional photo editing">
-</div>
-
-</div>
-
-<div style="margin-top:40px;">
-
-<a href="https://www.behance.net/goodnessdickson1" target="_blank" class="btn">
-
-View Full Portfolio on Behance
-
-</a>
-
-</div>
-
 </section>
 
+<div class="divider"></div>
 
-
-<!-- CONTACT -->
-
-<section id="contact" class="contact" data-aos="fade-up">
-
-<h2>Contact DicksonGrafiks</h2>
-
-<p>Let's create something amazing for your brand.</p>
-
-<a href="https://wa.me/2349165966831?text=Hello%20DicksonGrafiks%20I%20need%20your%20services"
-target="_blank"
-class="btn contact-btn">
-
-Send Message
-
-</a>
-
-<p class="email">Email: edickson774@gmail.com</p>
-
+<section id="uiux">
+<h2>UI / UX Design</h2>
+<p class="section-text">User-centered designs focused on clarity and usability.</p>
+<div class="grid">
+<div class="card"><img src="images/work4.jpg" onclick="openModal(this.src)"></div>
+<div class="card"><img src="images/work2.jpg" onclick="openModal(this.src)"></div>
+</div>
 </section>
 
+<div class="divider"></div>
 
+<section id="clients">
+<h2>Clients & Reach</h2>
+<p class="section-text">Trusted by brands and individuals across regions.</p>
+<div class="clients">
+<div class="client">Nigeria</div>
+<div class="client">Malawi</div>
+<div class="client">United Kingdom</div>
+<div class="client">Ghana</div>
+</div>
+</section>
+
+<section id="contact">
+<h2>Let’s Create Something Great</h2>
+<p class="section-text">Ready to bring your ideas to life? Let's work together.</p>
+<button class="btn" onclick="window.open('https://wa.me/2349165966831')">Chat on WhatsApp</button>
+</section>
 
 <footer>
-
-<p>© 2026 DicksonGrafiks</p>
-
+<p>© 2026 DicksonGrafiks — Visuals That Speak</p>
 </footer>
 
-
-
-<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<div class="modal" id="modal" onclick="this.style.display='none'"><img id="modalImg"></div>
 
 <script>
+// CLEANED + IMPROVED SCRIPT
 
-AOS.init({
-duration:1200,
-once:true
+// SCROLL REVEAL WITH STAGGER
+const observer = new IntersectionObserver(entries => {
+ entries.forEach(entry => {
+  if(entry.isIntersecting){
+    entry.target.classList.add('show');
+  }
+ });
 });
 
-</script>
+document.querySelectorAll('.card').forEach((el, index) => {
+ observer.observe(el);
+ el.style.transitionDelay = (index * 0.08) + 's'; // smoother stagger
+});
 
-<script src="script.js"></script>
+// MODAL
+function openModal(src){
+ document.getElementById('modal').style.display='flex';
+ document.getElementById('modalImg').src = src;
+}
+
+// MOUSE GLOW
+const glow = document.getElementById('glow');
+document.addEventListener('mousemove', e => {
+ glow.style.left = e.clientX + 'px';
+ glow.style.top = e.clientY + 'px';
+});
+
+// SHOW MORE FUNCTIONALITY
+function setupShowMore(sectionId, visibleCount = 4){
+ const section = document.getElementById(sectionId);
+ const cards = section.querySelectorAll('.card');
+
+ cards.forEach((card, index) => {
+  if(index >= visibleCount){
+    card.style.display = 'none';
+  }
+ });
+
+ const btn = document.createElement('button');
+ btn.innerText = 'Show More';
+ btn.className = 'btn';
+ btn.style.display = 'block';
+ btn.style.margin = '30px auto 0';
+
+ let expanded = false;
+ btn.onclick = () => {
+  expanded = !expanded;
+  cards.forEach((card, index) => {
+    if(index >= visibleCount){
+      card.style.display = expanded ? 'block' : 'none';
+    }
+  });
+  btn.innerText = expanded ? 'Show Less' : 'Show More';
+ };
+
+ if(cards.length > visibleCount){
+  section.appendChild(btn);
+ }
+}
+
+// APPLY
+setupShowMore('video');
+setupShowMore('graphics');
+setupShowMore('photo');
+setupShowMore('uiux');
+
+</script>
 
 </body>
 </html>
