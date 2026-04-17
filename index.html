@@ -3,342 +3,478 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DicksonGrafiks | Visuals That Speak</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+<title>DicksonGrafiks — Visuals That Speaks</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/feather-icons"></script>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-html{scroll-behavior:smooth;}
-body{background:#0a0a0a;color:#fff;overflow-x:hidden;}
-
-/* NAV */
-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 8%;position:fixed;width:100%;background:rgba(0,0,0,0.6);backdrop-filter:blur(12px);z-index:1000;}
-.logo{font-weight:800;font-size:22px;color:#00f7ff;}
-ul{display:flex;gap:25px;list-style:none;}
-ul li a{color:#fff;text-decoration:none;font-size:14px;transition:.3s;}
-ul li a:hover{color:#00f7ff;}
-
-section{padding:100px 8%;position:relative;z-index:2;}
-h2{font-size:32px;margin-bottom:10px;}
-p.section-text{color:#aaa;margin-bottom:30px;max-width:600px;}
-
-/* HERO */
-.hero{height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;}
-.hero::before{
-content:"";
-position:absolute;
-width:700px;height:700px;
-background:conic-gradient(from 180deg,#00f7ff22,transparent,#00f7ff22);
-border-radius:50%;
-filter:blur(100px);
-animation:rotate 25s linear infinite;
-}
-@keyframes rotate{0%{transform:rotate(0);}100%{transform:rotate(360deg);}}
-.hero h1{font-size:clamp(32px,6vw,60px);font-weight:800;z-index:1;}
-.hero span{color:#00f7ff;}
-.hero p{color:#bbb;margin-top:10px;z-index:1;}
-
-.btn{margin-top:20px;padding:12px 25px;border:none;background:#00f7ff;color:#000;font-weight:600;border-radius:30px;cursor:pointer;transition:.3s;}
-.btn:hover{transform:scale(1.05);}
-
-/* GRID */
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-gap:15px;
-max-width:1000px;
-margin:auto;
-}
-.card{
-position:relative;
-background:#111;
-border-radius:14px;
-overflow:hidden;
-aspect-ratio:1/1;
-transition:.4s;
-cursor:pointer;
-opacity:0;
-transform:translateY(40px);
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+body{
+background:#050505;
+color:#fff;
+overflow-x:hidden;
 }
 
-/* IMAGE */
-.card img{
+/* 🌌 MAIN ANIMATED BACKGROUND */
+.bg{
+position:fixed;
 width:100%;
 height:100%;
-object-fit:cover;
-object-position:top;
-transition:transform .4s ease, filter .4s ease;
+z-index:-3;
+background:radial-gradient(circle at 20% 30%, #00f7ff22, transparent 40%),
+           radial-gradient(circle at 80% 70%, #7a00ff22, transparent 40%),
+           radial-gradient(circle at 50% 50%, #ffffff10, transparent 60%);
+filter:blur(110px);
+animation:moveBg 14s ease-in-out infinite alternate;
 }
 
-/* OVERLAY */
-.card::before{
+@keyframes moveBg{
+0%{transform:translate(0,0) scale(1);}
+100%{transform:translate(-80px,60px) scale(1.1);}
+}
+
+/* 🌊 ROTATING ENERGY LAYER */
+body::before{
 content:"";
-position:absolute;
-inset:0;
-background:linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-opacity:0;
-transition:.4s;
+position:fixed;
+width:200%;
+height:200%;
+top:-50%;
+left:-50%;
+background:conic-gradient(from 180deg,#00f7ff10,#7a00ff10,#000,#00f7ff10);
+animation:spin 25s linear infinite;
+z-index:-2;
+opacity:0.35;
 }
 
-/* TITLE */
-.card .info{
-position:absolute;
-bottom:15px;
-left:15px;
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+
+/* ✨ NOISE TEXTURE */
+body::after{
+content:"";
+position:fixed;
+width:100%;
+height:100%;
+background:url('https://grainy-gradients.vercel.app/noise.svg');
+opacity:0.04;
+z-index:-1;
+pointer-events:none;
+}
+
+/* 💡 CURSOR GLOW */
+.cursor-glow{
+position:fixed;
+width:250px;
+height:250px;
+border-radius:50%;
+background:radial-gradient(circle,#00f7ff33,transparent 70%);
+transform:translate(-50%,-50%);
+pointer-events:none;
+z-index:0;
+filter:blur(25px);
+}
+
+/* NAV */
+nav{
+position:fixed;
+width:100%;
+display:flex;
+justify-content:space-between;
+padding:20px 8%;
+background:rgba(0,0,0,0.4);
+backdrop-filter:blur(10px);
+z-index:1000;
+}
+nav a{
+color:#aaa;
+margin-left:20px;
+text-decoration:none;
+transition:.3s;
+}
+nav a:hover{color:#fff;}
+
+/* HERO */
+.hero{
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+}
+.hero h1{
+font-size:clamp(40px,6vw,85px);
+font-weight:800;
+line-height:1.1;
+}
+.hero span{
+background:linear-gradient(90deg,#00f7ff,#7a00ff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+.hero p{
+margin-top:20px;
+color:#aaa;
+}
+
+/* BUTTON */
+.btn{
+margin-top:30px;
+padding:14px 30px;
+border-radius:40px;
+border:none;
+background:linear-gradient(90deg,#00f7ff,#7a00ff);
 color:#fff;
-font-size:14px;
-opacity:0;
-transform:translateY(10px);
+font-weight:600;
+cursor:pointer;
+transition:.4s;
+position:relative;
+overflow:hidden;
+}
+.btn:hover{transform:scale(1.05);}
+
+/* SECTIONS */
+section{
+padding:120px 8%;
+}
+h2{
+font-size:38px;
+margin-bottom:20px;
+text-align:center;
+}
+.section-text{
+color:#aaa;
+max-width:650px;
+margin:0 auto 40px;
+text-align:center;
+}
+
+/* PROJECTS */
+.project{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:40px;
+margin-bottom:100px;
+align-items:center;
+}
+.project img{
+width:100%;
+border-radius:20px;
+transition:.5s;
+}
+.project:hover img{
+transform:scale(1.04);
+}
+
+/* PREVIEW GRID */
+.preview-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
+}
+.preview-grid img{
+width:100%;
+border-radius:15px;
+transition:.4s;
+}
+.preview-grid img:hover{
+transform:scale(1.05);
+}
+
+/* SERVICES */
+.services{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+}
+.service{
+padding:30px;
+border-radius:20px;
+background:rgba(255,255,255,0.03);
+border:1px solid rgba(255,255,255,0.08);
+transition:.4s;
+text-align:center;
+}
+.service:hover{
+transform:translateY(-10px);
+}
+
+/* 🌍 COUNTRIES SECTION */
+.countries{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+margin-top:40px;
+}
+
+.country{
+padding:25px;
+border-radius:20px;
+background:rgba(255,255,255,0.03);
+border:1px solid rgba(255,255,255,0.08);
+text-align:center;
 transition:.4s;
 }
 
-.card:hover img{
-transform:scale(1.08);
-filter:brightness(0.8);
+.country:hover{
+transform:translateY(-10px);
+border-color:#7a00ff;
 }
 
-.card:hover::before{
-opacity:1;
+.country span{
+font-size:28px;
+display:block;
+margin-bottom:10px;
 }
 
-.card:hover .info{
+.country h3{
+margin-bottom:8px;
+}
+
+/* LINKS */
+.links{
+display:flex;
+flex-wrap:wrap;
+gap:15px;
+justify-content:center;
+}
+.links a{
+padding:10px 20px;
+border-radius:30px;
+border:1px solid #222;
+color:#aaa;
+text-decoration:none;
+transition:.3s;
+}
+.links a:hover{
+color:#fff;
+border-color:#7a00ff;
+}
+
+/* WHATSAPP FLOAT */
+.whatsapp-float{
+position:fixed;
+bottom:25px;
+right:25px;
+width:55px;
+height:55px;
+border-radius:50%;
+background:linear-gradient(135deg,#00f7ff,#7a00ff);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:999;
+animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+0%{box-shadow:0 0 0 0 rgba(0,247,255,0.5);}
+70%{box-shadow:0 0 0 15px rgba(0,247,255,0);}
+100%{box-shadow:0 0 0 0 rgba(0,247,255,0);}
+}
+
+/* MOBILE */
+@media(max-width:768px){
+.project{
+grid-template-columns:1fr;
+}
+}
+
+/* 🌊 FADE IN */
+.fade{
+opacity:0;
+transform:translateY(40px);
+transition:all 0.8s ease;
+}
+.fade.show{
 opacity:1;
 transform:translateY(0);
 }
-
-.card:hover{
-transform:translateY(-8px) scale(1.02);
-box-shadow:0 0 25px #00f7ff33;
-}
-
-/* KEY FIX: TOP-FOCUS CROPPING */
-.card img{
-width:100%;
-height:100%;
-object-fit:cover;
-object-position:top;
-filter:brightness(0.95);
-}
-
-.card:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 0 25px #00f7ff33;}
-
-/* TOOLTIP */
-.card::after{
-content:"Tap to view";
-position:absolute;
-bottom:10px;
-left:50%;
-transform:translateX(-50%);
-background:rgba(0,0,0,0.7);
-padding:6px 12px;
-border-radius:20px;
-font-size:12px;
-opacity:0;
-transition:.3s;
-}
-.card:hover::after{opacity:1;}
-
-/* VIDEO */
-.video iframe{width:100%;height:100%;border:none;}
-
-.divider{height:1px;background:#222;margin:60px 0;}
-
-/* CLIENTS */
-.clients{display:flex;flex-wrap:wrap;gap:15px;margin-top:20px;}
-.client{padding:12px 20px;border:1px solid #222;border-radius:30px;color:#ccc;font-size:14px;transition:.3s;}
-.client:hover{border-color:#00f7ff;color:#00f7ff;}
-
-footer{text-align:center;padding:30px;color:#777;}
-
-/* MODAL */
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);justify-content:center;align-items:center;z-index:2000;}
-.modal img{max-width:90%;max-height:90%;border-radius:10px;}
-
-/* SCROLL ANIMATION */
-.show{opacity:1 !important;transform:translateY(0) !important;transition:all 0.8s ease;}
-
-/* MOUSE GLOW EFFECT */
-.glow{
-position:fixed;
-top:0;left:0;
-width:300px;height:300px;
-border-radius:50%;
-pointer-events:none;
-background:radial-gradient(circle,#00f7ff33,transparent 70%);
-filter:blur(60px);
-transform:translate(-50%,-50%);
-z-index:1;
-}
-
-@media(max-width:768px){
-nav ul{display:none;}
-section{padding:80px 6%;}
-.glow{display:none;} /* disable on mobile for performance */
-}
 </style>
 </head>
+
 <body>
 
-<div class="glow" id="glow"></div>
+<div class="bg"></div>
+<div class="cursor-glow"></div>
 
 <nav>
-<div class="logo">DicksonGrafiks</div>
-<ul>
-<li><a href="#home">Home</a></li>
-<li><a href="#video">Video</a></li>
-<li><a href="#graphics">Graphics</a></li>
-<li><a href="#photo">Photo</a></li>
-<li><a href="#uiux">UI/UX</a></li>
-<li><a href="#clients">Clients</a></li>
-<li><a href="#contact">Contact</a></li>
-</ul>
+<div><b>DicksonGrafiks</b></div>
+<div>
+<a href="#work">Work</a>
+<a href="#about">About</a>
+<a href="#contact">Contact</a>
+</div>
 </nav>
 
-<section id="home" class="hero">
+<!-- HERO -->
+<section class="hero fade">
 <div>
-<h1>Visuals That <span>Speak</span></h1>
-<p>We craft powerful visuals that elevate brands and tell unforgettable stories.</p>
-<button class="btn" onclick="document.getElementById('contact').scrollIntoView()">Work With Me</button>
+<h1>VISUALS THAT <span>SPEAKS</span></h1>
+<p>We create bold, modern and impactful visual designs for brands.</p>
+<button class="btn" onclick="window.open('https://wa.me/2349165966831')">
+Start a Project
+</button>
 </div>
 </section>
 
-<section id="video">
-<h2>Video Editing</h2>
-<p class="section-text">Engaging, high-quality video edits delivered with cinematic precision.</p>
-<div class="grid">
-<div class="card video"><iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID"></iframe></div>
-<div class="card video"><iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID"></iframe></div>
+<!-- WORK -->
+<section id="work">
+<h2 class="fade">Selected Work</h2>
+<p class="section-text fade">A curated selection of our best visual projects.</p>
+
+<div class="project fade">
+<img src="images/Mentos.jpg">
+<div>
+<h3>Brand Identity</h3>
+<p>Clean and bold identity system designed for strong brand presence.</p>
+</div>
+</div>
+
+<div class="project fade">
+<img src="images/Graphics 1.jpg">
+<div>
+<h3>Social Media Campaign</h3>
+<p>High-performing visuals built to grab attention instantly.</p>
+</div>
 </div>
 </section>
 
-<div class="divider"></div>
+<!-- PREVIEW -->
+<section>
+<h2 class="fade">More Designs</h2>
+<p class="section-text fade">Explore more on Behance.</p>
 
-<section id="graphics">
-<h2>Graphic Design</h2>
-<p class="section-text">Clean and compelling visuals tailored for strong brand communication.</p>
-<div class="grid">
-<div class="card"><img src="images/work2.jpg" onclick="openModal(this.src)"></div>
-<div class="card"><img src="images/work5.jpg" onclick="openModal(this.src)"></div>
+<div class="preview-grid fade">
+<img src="images/Edit 5.jpg">
+<img src="images/Edit 10.jpg">
+<img src="images/Edit 15.jpg">
+<img src="images/Edit 42.jpg">
+</div>
+
+<div style="text-align:center;margin-top:30px;">
+<button class="btn" onclick="window.open('https://www.behance.net/goodnessdickson1')">
+View Full Portfolio
+</button>
 </div>
 </section>
 
-<div class="divider"></div>
+<!-- ABOUT -->
+<section id="about" class="fade">
+<h2>About</h2>
+<p class="section-text">
+DicksonGrafiks is a visual design brand focused on creating bold, modern visuals that communicate clearly and stand out.
+</p>
+</section>
 
-<section id="photo">
-<h2>Photo Editing</h2>
-<p class="section-text">Refined edits with precision, clarity, and professional polish.</p>
-<div class="grid">
-<div class="card"><img src="images/work3.jpg" onclick="openModal(this.src)"></div>
-<div class="card"><img src="images/work4.jpg" onclick="openModal(this.src)"></div>
+<!-- SERVICES -->
+<section>
+<h2 class="fade">What We Do</h2>
+<div class="services">
+<div class="service fade">Brand & Identity Design</div>
+<div class="service fade">Social Media & Campaign Design</div>
+<div class="service fade">Digital & Web Visual Design</div>
+<div class="service fade">Motion & Video Editing</div>
+<div class="service fade">Photo Retouching & Manipulation</div>
 </div>
 </section>
 
-<div class="divider"></div>
+<!-- 🌍 COUNTRIES -->
+<section>
+<h2 class="fade">Countries We’ve Worked In</h2>
+<p class="section-text fade">Our creative reach spans across multiple countries.</p>
 
-<section id="uiux">
-<h2>UI / UX Design</h2>
-<p class="section-text">User-centered designs focused on clarity and usability.</p>
-<div class="grid">
-<div class="card"><img src="images/work4.jpg" onclick="openModal(this.src)"></div>
-<div class="card"><img src="images/work2.jpg" onclick="openModal(this.src)"></div>
+<div class="countries fade">
+
+<div class="country">
+<span>🇳🇬</span>
+<h3>Nigeria</h3>
+</div>
+
+<div class="country">
+<span>🇬🇭</span>
+<h3>Ghana</h3>
+</div>
+
+<div class="country">
+<span>🇬🇧</span>
+<h3>United Kingdom</h3>
+</div>
+
+<div class="country">
+<span>🇲🇼</span>
+<h3>Malawi</h3>
+</div>
+
 </div>
 </section>
 
-<div class="divider"></div>
+<!-- LEARN -->
+<section class="fade" style="text-align:center;">
+<h2>Want to Learn Graphic Design?</h2>
+<p class="section-text">
+Message us on WhatsApp to start learning.
+</p>
+<button class="btn" onclick="window.open('https://wa.me/2349165966831')">
+Message Us
+</button>
+</section>
 
-<section id="clients">
-<h2>Clients & Reach</h2>
-<p class="section-text">Trusted by brands and individuals across regions.</p>
-<div class="clients">
-<div class="client">Nigeria</div>
-<div class="client">Malawi</div>
-<div class="client">United Kingdom</div>
-<div class="client">Ghana</div>
+<!-- CONNECT -->
+<section>
+<h2 class="fade">Connect</h2>
+<div class="links fade">
+<a href="https://www.behance.net/goodnessdickson1">Behance</a>
+<a href="https://linkedin.com/in/goodness-dickson-ba1b333a8">LinkedIn</a>
+<a href="https://youtube.com/@dicksongrafiks">YouTube</a>
+<a href="https://x.com/DicksonGrafiks">X</a>
+<a href="https://facebook.com/DicksonGrafiks">Facebook</a>
 </div>
 </section>
 
-<section id="contact">
-<h2>Let’s Create Something Great</h2>
-<p class="section-text">Ready to bring your ideas to life? Let's work together.</p>
-<button class="btn" onclick="window.open('https://wa.me/2349165966831')">Chat on WhatsApp</button>
+<!-- CTA -->
+<section id="contact" class="fade" style="text-align:center;">
+<h2>Let’s Create Something Powerful</h2>
+<button class="btn" onclick="window.open('https://wa.me/2349165966831')">
+Start Now
+</button>
 </section>
 
-<footer>
-<p>© 2026 DicksonGrafiks — Visuals That Speak</p>
+<footer style="text-align:center;padding:40px;color:#666;">
+© 2026 DicksonGrafiks — Visuals That Speaks
 </footer>
 
-<div class="modal" id="modal" onclick="this.style.display='none'"><img id="modalImg"></div>
+<!-- WHATSAPP -->
+<a href="https://wa.me/2349165966831" class="whatsapp-float">
+<i data-feather="message-circle"></i>
+</a>
 
 <script>
-// CLEANED + IMPROVED SCRIPT
+feather.replace();
 
-// SCROLL REVEAL WITH STAGGER
-const observer = new IntersectionObserver(entries => {
- entries.forEach(entry => {
-  if(entry.isIntersecting){
-    entry.target.classList.add('show');
-  }
- });
+/* CURSOR GLOW */
+const glow = document.querySelector('.cursor-glow');
+document.addEventListener('mousemove', (e)=>{
+glow.style.left = e.clientX + 'px';
+glow.style.top = e.clientY + 'px';
 });
 
-document.querySelectorAll('.card').forEach((el, index) => {
- observer.observe(el);
- el.style.transitionDelay = (index * 0.08) + 's'; // smoother stagger
-});
-
-// MODAL
-function openModal(src){
- document.getElementById('modal').style.display='flex';
- document.getElementById('modalImg').src = src;
+/* SCROLL ANIMATION */
+const observer = new IntersectionObserver(entries=>{
+entries.forEach(entry=>{
+if(entry.isIntersecting){
+entry.target.classList.add('show');
 }
-
-// MOUSE GLOW
-const glow = document.getElementById('glow');
-document.addEventListener('mousemove', e => {
- glow.style.left = e.clientX + 'px';
- glow.style.top = e.clientY + 'px';
+});
 });
 
-// SHOW MORE FUNCTIONALITY
-function setupShowMore(sectionId, visibleCount = 4){
- const section = document.getElementById(sectionId);
- const cards = section.querySelectorAll('.card');
-
- cards.forEach((card, index) => {
-  if(index >= visibleCount){
-    card.style.display = 'none';
-  }
- });
-
- const btn = document.createElement('button');
- btn.innerText = 'Show More';
- btn.className = 'btn';
- btn.style.display = 'block';
- btn.style.margin = '30px auto 0';
-
- let expanded = false;
- btn.onclick = () => {
-  expanded = !expanded;
-  cards.forEach((card, index) => {
-    if(index >= visibleCount){
-      card.style.display = expanded ? 'block' : 'none';
-    }
-  });
-  btn.innerText = expanded ? 'Show Less' : 'Show More';
- };
-
- if(cards.length > visibleCount){
-  section.appendChild(btn);
- }
-}
-
-// APPLY
-setupShowMore('video');
-setupShowMore('graphics');
-setupShowMore('photo');
-setupShowMore('uiux');
-
+document.querySelectorAll('.fade').forEach(el=>{
+observer.observe(el);
+});
 </script>
 
 </body>
