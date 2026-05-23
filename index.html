@@ -4,38 +4,56 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>DicksonGrafiks — Visuals That Speaks</title>
+<title>DicksonGrafiks — Visuals That Speak</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/feather-icons"></script>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+html{
+scroll-behavior:smooth;
+}
+
 body{
 background:#050505;
 color:#fff;
 overflow-x:hidden;
+position:relative;
 }
 
-/* 🌌 MAIN ANIMATED BACKGROUND */
+/* BACKGROUND */
+
 .bg{
 position:fixed;
-width:100%;
-height:100%;
-z-index:-3;
-background:radial-gradient(circle at 20% 30%, #00f7ff22, transparent 40%),
-           radial-gradient(circle at 80% 70%, #7a00ff22, transparent 40%),
-           radial-gradient(circle at 50% 50%, #ffffff10, transparent 60%);
-filter:blur(110px);
-animation:moveBg 14s ease-in-out infinite alternate;
+inset:0;
+z-index:-4;
+background:
+radial-gradient(circle at 20% 30%, #00f7ff22, transparent 35%),
+radial-gradient(circle at 80% 70%, #7a00ff22, transparent 35%),
+radial-gradient(circle at 50% 50%, #ffffff08, transparent 50%);
+filter:blur(100px);
+animation:moveBg 15s ease-in-out infinite alternate;
 }
 
 @keyframes moveBg{
-0%{transform:translate(0,0) scale(1);}
-100%{transform:translate(-80px,60px) scale(1.1);}
+0%{
+transform:translate(0,0) scale(1);
+}
+100%{
+transform:translate(-60px,50px) scale(1.1);
+}
 }
 
-/* 🌊 ROTATING ENERGY LAYER */
+/* ENERGY LAYER */
+
 body::before{
 content:"";
 position:fixed;
@@ -45,196 +63,392 @@ top:-50%;
 left:-50%;
 background:conic-gradient(from 180deg,#00f7ff10,#7a00ff10,#000,#00f7ff10);
 animation:spin 25s linear infinite;
-z-index:-2;
-opacity:0.35;
+z-index:-3;
+opacity:.35;
 }
 
 @keyframes spin{
-0%{transform:rotate(0deg);}
-100%{transform:rotate(360deg);}
+100%{
+transform:rotate(360deg);
+}
 }
 
-/* ✨ NOISE TEXTURE */
+/* NOISE */
+
 body::after{
 content:"";
 position:fixed;
-width:100%;
-height:100%;
+inset:0;
 background:url('https://grainy-gradients.vercel.app/noise.svg');
-opacity:0.04;
-z-index:-1;
+opacity:.04;
 pointer-events:none;
+z-index:-2;
 }
 
-/* 💡 CURSOR GLOW */
+/* PARTICLES */
+
+.particles{
+position:fixed;
+inset:0;
+overflow:hidden;
+pointer-events:none;
+z-index:-1;
+}
+
+.particles span{
+position:absolute;
+display:block;
+border-radius:50%;
+background:#ffffff33;
+animation:floatParticle linear infinite;
+}
+
+@keyframes floatParticle{
+0%{
+transform:translateY(100vh) scale(0);
+opacity:0;
+}
+10%{
+opacity:1;
+}
+100%{
+transform:translateY(-10vh) scale(1);
+opacity:0;
+}
+}
+
+/* LOADER */
+
+.loader-wrapper{
+position:fixed;
+inset:0;
+background:#050505;
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:99999;
+transition:.8s;
+}
+
+.loader-wrapper.hide{
+opacity:0;
+visibility:hidden;
+}
+
+.loader-logo{
+font-size:clamp(30px,6vw,60px);
+font-weight:800;
+background:linear-gradient(90deg,#00f7ff,#7a00ff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+animation:pulseLoader 1.4s infinite;
+}
+
+@keyframes pulseLoader{
+50%{
+transform:scale(1.08);
+}
+}
+
+/* CURSOR */
+
 .cursor-glow{
 position:fixed;
-width:250px;
-height:250px;
+width:240px;
+height:240px;
 border-radius:50%;
-background:radial-gradient(circle,#00f7ff33,transparent 70%);
+background:radial-gradient(circle,#00f7ff22,transparent 70%);
 transform:translate(-50%,-50%);
 pointer-events:none;
 z-index:0;
-filter:blur(25px);
+filter:blur(20px);
 }
 
-/* NAV (FIXED FOR MOBILE) */
+/* NAV */
+
 nav{
 position:fixed;
 top:0;
 left:0;
 width:100%;
+padding:16px 6%;
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:15px 6%;
 background:rgba(0,0,0,0.4);
-backdrop-filter:blur(10px);
+backdrop-filter:blur(14px);
 z-index:1000;
-flex-wrap:wrap;
+border-bottom:1px solid rgba(255,255,255,0.05);
 }
 
-nav b{
-font-size:16px;
-white-space:nowrap;
+.logo{
+font-size:18px;
+font-weight:700;
+letter-spacing:.5px;
 }
 
-nav div{
+.nav-links{
 display:flex;
-gap:18px;
+gap:22px;
 flex-wrap:wrap;
-justify-content:flex-end;
-align-items:center;
 }
 
-nav a{
-color:#aaa;
+.nav-links a{
 text-decoration:none;
+color:#aaa;
+font-size:14px;
 transition:.3s;
-font-size:13px;
-padding:6px 8px;
 }
 
-nav a:hover{color:#fff;}
+.nav-links a:hover{
+color:#fff;
+}
 
 /* HERO */
+
 .hero{
-height:100vh;
+min-height:100vh;
 display:flex;
 align-items:center;
 justify-content:center;
 text-align:center;
-padding-top:80px;
+padding:140px 6% 100px;
 }
-.hero h1{
-font-size:clamp(40px,6vw,85px);
+
+.hero-content{
+width:100%;
+max-width:1100px;
+margin:auto;
+}
+
+.main-title{
+font-size:clamp(48px,9vw,110px);
 font-weight:800;
-line-height:1.1;
+line-height:.95;
+letter-spacing:-3px;
 }
-.hero span{
+
+.main-title span{
 background:linear-gradient(90deg,#00f7ff,#7a00ff);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
-.hero p{
-margin-top:20px;
+
+.dynamic-text{
+margin-top:22px;
+font-size:clamp(20px,3vw,36px);
+font-weight:600;
+min-height:55px;
+color:#ddd;
+}
+
+.typing{
+background:linear-gradient(90deg,#00f7ff,#7a00ff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+border-right:3px solid #00f7ff;
+padding-right:6px;
+animation:blink .7s infinite;
+}
+
+@keyframes blink{
+50%{
+border-color:transparent;
+}
+}
+
+.hero-sub{
+max-width:760px;
+margin:26px auto 0;
+font-size:clamp(15px,2vw,18px);
+line-height:1.8;
 color:#aaa;
 }
 
-/* BUTTON */
-.btn{
+.hero-tags{
+display:flex;
+justify-content:center;
+gap:12px;
+flex-wrap:wrap;
 margin-top:30px;
-padding:14px 30px;
-border-radius:40px;
+}
+
+.hero-tags span{
+padding:10px 18px;
+border-radius:30px;
+background:rgba(255,255,255,0.05);
+border:1px solid rgba(255,255,255,0.08);
+font-size:13px;
+color:#ccc;
+backdrop-filter:blur(10px);
+transition:.3s;
+}
+
+.hero-tags span:hover{
+transform:translateY(-5px);
+border-color:#00f7ff;
+color:#fff;
+}
+
+/* BUTTON */
+
+.btn{
+margin-top:35px;
+padding:15px 34px;
 border:none;
+border-radius:40px;
 background:linear-gradient(90deg,#00f7ff,#7a00ff);
 color:#fff;
 font-weight:600;
 cursor:pointer;
-transition:.4s;
-position:relative;
-overflow:hidden;
+font-size:15px;
+transition:transform .2s ease;
 }
-.btn:hover{transform:scale(1.05);}
+
+/* STATS */
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+padding:0 8% 100px;
+}
+
+.stat-card{
+padding:40px 25px;
+border-radius:24px;
+background:rgba(255,255,255,0.03);
+border:1px solid rgba(255,255,255,0.08);
+text-align:center;
+backdrop-filter:blur(14px);
+transition:.4s;
+}
+
+.stat-card:hover{
+transform:translateY(-8px);
+border-color:#00f7ff;
+}
+
+.stat-card h2{
+font-size:50px;
+margin-bottom:10px;
+background:linear-gradient(90deg,#00f7ff,#7a00ff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.stat-card p{
+color:#aaa;
+}
 
 /* SECTIONS */
+
 section{
-padding:120px 8%;
+padding:110px 8%;
 }
-h2{
-font-size:38px;
-margin-bottom:20px;
+
+.section-title{
+font-size:clamp(30px,5vw,46px);
+margin-bottom:18px;
 text-align:center;
 }
+
 .section-text{
-color:#aaa;
-max-width:650px;
-margin:0 auto 40px;
+max-width:700px;
+margin:0 auto 50px;
 text-align:center;
+line-height:1.8;
+color:#999;
 }
 
 /* PROJECTS */
+
 .project{
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:40px;
-margin-bottom:100px;
+gap:45px;
 align-items:center;
-}
-.project img{
-width:100%;
-border-radius:20px;
-transition:.5s;
-}
-.project:hover img{
-transform:scale(1.04);
+margin-bottom:90px;
 }
 
-/* PREVIEW GRID */
+.project img{
+width:100%;
+display:block;
+border-radius:22px;
+transition:.5s;
+box-shadow:0 0 0 transparent;
+}
+
+.project img:hover{
+transform:scale(1.03);
+box-shadow:0 0 35px rgba(0,247,255,0.2);
+}
+
+.project h3{
+font-size:30px;
+margin-bottom:14px;
+}
+
+.project p{
+color:#aaa;
+line-height:1.8;
+}
+
+/* GRID */
+
 .preview-grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:15px;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:18px;
 }
+
 .preview-grid img{
 width:100%;
-border-radius:15px;
+aspect-ratio:1/1;
+object-fit:cover;
+border-radius:18px;
 transition:.4s;
 }
+
 .preview-grid img:hover{
-transform:scale(1.05);
+transform:translateY(-8px);
+box-shadow:0 0 30px rgba(0,247,255,0.25);
 }
 
 /* SERVICES */
+
 .services{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
 gap:20px;
 }
+
 .service{
-padding:30px;
-border-radius:20px;
+padding:35px 25px;
+border-radius:24px;
 background:rgba(255,255,255,0.03);
 border:1px solid rgba(255,255,255,0.08);
-transition:.4s;
 text-align:center;
-}
-.service:hover{
-transform:translateY(-10px);
+transition:.4s;
 }
 
-/* 🌍 COUNTRIES */
+.service:hover{
+transform:translateY(-10px);
+border-color:#00f7ff;
+}
+
+/* COUNTRIES */
+
 .countries{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
 gap:20px;
 margin-top:40px;
 }
 
 .country{
-padding:25px;
-border-radius:20px;
+padding:30px;
+border-radius:22px;
 background:rgba(255,255,255,0.03);
 border:1px solid rgba(255,255,255,0.08);
 text-align:center;
@@ -247,42 +461,51 @@ border-color:#7a00ff;
 }
 
 .country span{
-font-size:28px;
+font-size:34px;
 display:block;
-margin-bottom:10px;
-}
-
-.country h3{
-margin-bottom:8px;
+margin-bottom:12px;
 }
 
 /* LINKS */
+
 .links{
 display:flex;
+justify-content:center;
 flex-wrap:wrap;
 gap:15px;
-justify-content:center;
-}
-.links a{
-padding:10px 20px;
-border-radius:30px;
-border:1px solid #222;
-color:#aaa;
-text-decoration:none;
-transition:.3s;
-}
-.links a:hover{
-color:#fff;
-border-color:#7a00ff;
 }
 
-/* WHATSAPP FLOAT */
+.links a{
+padding:12px 22px;
+border-radius:40px;
+border:1px solid #222;
+text-decoration:none;
+color:#aaa;
+transition:.3s;
+}
+
+.links a:hover{
+border-color:#00f7ff;
+color:#fff;
+}
+
+/* FOOTER */
+
+footer{
+padding:40px 20px;
+text-align:center;
+color:#666;
+font-size:14px;
+}
+
+/* WHATSAPP */
+
 .whatsapp-float{
 position:fixed;
-bottom:25px;
-right:25px;
-width:55px;
-height:55px;
+bottom:22px;
+right:22px;
+width:58px;
+height:58px;
 border-radius:50%;
 background:linear-gradient(135deg,#00f7ff,#7a00ff);
 display:flex;
@@ -293,145 +516,323 @@ animation:pulse 2s infinite;
 }
 
 @keyframes pulse{
-0%{box-shadow:0 0 0 0 rgba(0,247,255,0.5);}
-70%{box-shadow:0 0 0 15px rgba(0,247,255,0);}
-100%{box-shadow:0 0 0 0 rgba(0,247,255,0);}
+70%{
+box-shadow:0 0 0 15px rgba(0,247,255,0);
+}
+100%{
+box-shadow:0 0 0 0 rgba(0,247,255,0);
+}
 }
 
-/* MOBILE FIX */
-@media(max-width:768px){
+/* FADE */
 
-nav{
-padding:12px 5%;
+.fade{
+opacity:0;
+transform:translateY(40px);
+transition:.8s ease;
 }
 
-nav div{
-width:100%;
-justify-content:center;
-margin-top:8px;
-gap:10px;
+.fade.show{
+opacity:1;
+transform:translateY(0);
 }
 
-nav a{
-font-size:12px;
-}
+/* RESPONSIVE */
+
+@media(max-width:900px){
 
 .project{
 grid-template-columns:1fr;
+}
+
+.project div{
+text-align:center;
+}
+
+nav{
+padding:14px 5%;
 }
 
 section{
 padding:90px 6%;
 }
 
-.hero h1{
-font-size:34px;
-}
+.stats{
+padding:0 6% 80px;
 }
 
-/* 🌊 FADE IN */
-.fade{
-opacity:0;
-transform:translateY(40px);
-transition:all 0.8s ease;
 }
-.fade.show{
-opacity:1;
-transform:translateY(0);
+
+@media(max-width:700px){
+
+nav{
+flex-direction:column;
+gap:10px;
 }
+
+.nav-links{
+justify-content:center;
+gap:14px;
+}
+
+.hero{
+padding-top:170px;
+}
+
+.main-title{
+letter-spacing:-1px;
+}
+
+.dynamic-text{
+min-height:70px;
+}
+
+.hero-tags span{
+font-size:12px;
+padding:9px 14px;
+}
+
+.btn{
+width:100%;
+max-width:320px;
+}
+
+.preview-grid{
+grid-template-columns:1fr 1fr;
+}
+
+}
+
+@media(max-width:500px){
+
+.preview-grid{
+grid-template-columns:1fr;
+}
+
+.section-title{
+font-size:30px;
+}
+
+.stat-card h2{
+font-size:42px;
+}
+
+}
+
 </style>
 </head>
 
 <body>
 
+<!-- LOADER -->
+<div class="loader-wrapper">
+<div class="loader-logo">DicksonGrafiks</div>
+</div>
+
 <div class="bg"></div>
+<div class="particles"></div>
 <div class="cursor-glow"></div>
 
+<!-- NAV -->
 <nav>
-<div><b>DicksonGrafiks</b></div>
-<div>
+
+<div class="logo">
+DicksonGrafiks
+</div>
+
+<div class="nav-links">
 <a href="#work">Work</a>
 <a href="#about">About</a>
+<a href="#services">Services</a>
 <a href="#contact">Contact</a>
 </div>
+
 </nav>
 
 <!-- HERO -->
+
 <section class="hero fade">
-<div>
-<h1>VISUALS THAT <span>SPEAKS</span></h1>
-<p>We create bold, modern and impactful visual designs for brands.</p>
+
+<div class="hero-content">
+
+<h1 class="main-title">
+VISUALS THAT <span>SPEAK</span>
+</h1>
+
+<h2 class="dynamic-text">
+We Offer <span class="typing"></span>
+</h2>
+
+<p class="hero-sub">
+Bold visuals, premium edits and modern creative solutions for brands, businesses and individuals.
+</p>
+
+<div class="hero-tags">
+<span>Creative</span>
+<span>Premium</span>
+<span>Fast Delivery</span>
+<span>Modern Visuals</span>
+</div>
+
 <button class="btn" onclick="window.open('https://wa.me/2349165966831')">
 Start a Project
 </button>
+
 </div>
+
+</section>
+
+<!-- STATS -->
+
+<section class="stats fade">
+
+<div class="stat-card">
+<h2 data-target="120">0</h2>
+<p>Projects Completed</p>
+</div>
+
+<div class="stat-card">
+<h2 data-target="4">0</h2>
+<p>Countries Reached</p>
+</div>
+
+<div class="stat-card">
+<h2 data-target="98">0</h2>
+<p>Client Satisfaction</p>
+</div>
+
 </section>
 
 <!-- WORK -->
+
 <section id="work">
-<h2 class="fade">Selected Work</h2>
-<p class="section-text fade">A curated selection of our best visual projects.</p>
+
+<h2 class="section-title fade">Selected Work</h2>
+
+<p class="section-text fade">
+A curated selection of our best visual projects and premium creative executions.
+</p>
 
 <div class="project fade">
-<img src="images/Mentos.jpg">
+
+<img src="images/Mentos.jpg" alt="Brand Identity">
+
 <div>
 <h3>Brand Identity</h3>
-<p>Clean and bold identity system designed for strong brand presence.</p>
+<p>
+Clean and bold identity systems designed to build strong visual recognition and memorable brand experiences.
+</p>
 </div>
+
 </div>
 
 <div class="project fade">
-<img src="images/Graphics 1.jpg">
+
+<img src="images/Graphics 1.jpg" alt="Social Media Campaign">
+
 <div>
 <h3>Social Media Campaign</h3>
-<p>High-performing visuals built to grab attention instantly.</p>
+<p>
+High-performing visuals designed to grab attention instantly and increase engagement across platforms.
+</p>
 </div>
+
 </div>
+
 </section>
 
-<!-- PREVIEW -->
+<!-- GALLERY -->
+
 <section>
-<h2 class="fade">More Designs</h2>
-<p class="section-text fade">Explore more on Behance.</p>
+
+<h2 class="section-title fade">More Designs</h2>
+
+<p class="section-text fade">
+Explore more premium visuals and creative edits from our portfolio collection.
+</p>
 
 <div class="preview-grid fade">
+
 <img src="images/Edit 5.jpg">
 <img src="images/Edit 10.jpg">
 <img src="images/Edit 15.jpg">
 <img src="images/Edit 42.jpg">
+
 </div>
 
-<div style="text-align:center;margin-top:30px;">
+<div style="text-align:center;">
+
 <button class="btn" onclick="window.open('https://www.behance.net/goodnessdickson1')">
 View Full Portfolio
 </button>
+
 </div>
+
 </section>
 
 <!-- ABOUT -->
+
 <section id="about" class="fade">
-<h2>About</h2>
+
+<h2 class="section-title">
+About DicksonGrafiks
+</h2>
+
 <p class="section-text">
-DicksonGrafiks is a visual design brand focused on creating bold, modern visuals that communicate clearly and stand out.
+DicksonGrafiks is a premium visual design brand focused on creating bold, modern and impactful creative visuals that stand out and communicate effectively.
 </p>
+
 </section>
 
 <!-- SERVICES -->
-<section>
-<h2 class="fade">What We Do</h2>
+
+<section id="services">
+
+<h2 class="section-title fade">
+What We Do
+</h2>
+
 <div class="services">
-<div class="service fade">Brand & Identity Design</div>
-<div class="service fade">Social Media & Campaign Design</div>
-<div class="service fade">Digital & Web Visual Design</div>
-<div class="service fade">Motion & Video Editing</div>
-<div class="service fade">Photo Retouching & Manipulation</div>
+
+<div class="service fade">
+Brand & Identity Design
 </div>
+
+<div class="service fade">
+Social Media Design
+</div>
+
+<div class="service fade">
+Photo Retouching
+</div>
+
+<div class="service fade">
+Motion Graphics
+</div>
+
+<div class="service fade">
+Video Editing
+</div>
+
+<div class="service fade">
+Web Visual Design
+</div>
+
+</div>
+
 </section>
 
-<!-- 🌍 COUNTRIES -->
+<!-- COUNTRIES -->
+
 <section>
-<h2 class="fade">Countries We’ve Worked In</h2>
-<p class="section-text fade">Our creative reach spans across multiple countries.</p>
+
+<h2 class="section-title fade">
+Countries We’ve Worked In
+</h2>
+
+<p class="section-text fade">
+Our creative reach spans across multiple countries and international collaborations.
+</p>
 
 <div class="countries fade">
 
@@ -456,70 +857,252 @@ DicksonGrafiks is a visual design brand focused on creating bold, modern visuals
 </div>
 
 </div>
+
 </section>
 
 <!-- LEARN -->
+
 <section class="fade" style="text-align:center;">
-<h2>Want to Learn Graphic Design?</h2>
+
+<h2 class="section-title">
+Want To Learn Graphic Design?
+</h2>
+
 <p class="section-text">
-Message us on WhatsApp to start learning.
+Message us on WhatsApp and start your creative journey today.
 </p>
+
 <button class="btn" onclick="window.open('https://wa.me/2349165966831')">
 Message Us
 </button>
+
 </section>
 
 <!-- CONNECT -->
+
 <section>
-<h2 class="fade">Connect</h2>
+
+<h2 class="section-title fade">
+Connect With Us
+</h2>
+
 <div class="links fade">
+
 <a href="https://www.behance.net/goodnessdickson1">Behance</a>
+
 <a href="https://linkedin.com/in/goodness-dickson-ba1b333a8">LinkedIn</a>
+
 <a href="https://youtube.com/@dicksongrafiks">YouTube</a>
+
 <a href="https://x.com/DicksonGrafiks">X</a>
+
 <a href="https://facebook.com/DicksonGrafiks">Facebook</a>
+
 </div>
+
 </section>
 
 <!-- CTA -->
+
 <section id="contact" class="fade" style="text-align:center;">
-<h2>Let’s Create Something Powerful</h2>
+
+<h2 class="section-title">
+Let’s Create Something Powerful
+</h2>
+
 <button class="btn" onclick="window.open('https://wa.me/2349165966831')">
 Start Now
 </button>
+
 </section>
 
-<footer style="text-align:center;padding:40px;color:#666;">
-© 2026 DicksonGrafiks — Visuals That Speaks
+<footer>
+© 2026 DicksonGrafiks — Visuals That Speak
 </footer>
 
 <!-- WHATSAPP -->
+
 <a href="https://wa.me/2349165966831" class="whatsapp-float">
 <i data-feather="message-circle"></i>
 </a>
 
 <script>
+
 feather.replace();
 
-/* CURSOR GLOW */
-const glow = document.querySelector('.cursor-glow');
-document.addEventListener('mousemove', (e)=>{
-glow.style.left = e.clientX + 'px';
-glow.style.top = e.clientY + 'px';
+/* LOADER */
+
+window.addEventListener('load',()=>{
+
+setTimeout(()=>{
+document.querySelector('.loader-wrapper').classList.add('hide');
+},1200);
+
 });
 
+/* CURSOR GLOW */
+
+const glow = document.querySelector('.cursor-glow');
+
+document.addEventListener('mousemove',(e)=>{
+
+glow.style.left = e.clientX + 'px';
+glow.style.top = e.clientY + 'px';
+
+});
+
+/* PARTICLES */
+
+const particles = document.querySelector('.particles');
+
+for(let i=0;i<40;i++){
+
+const particle = document.createElement('span');
+
+particle.style.left = Math.random()*100 + 'vw';
+
+particle.style.width =
+particle.style.height =
+Math.random()*4 + 2 + 'px';
+
+particle.style.animationDuration =
+(Math.random()*10 + 10) + 's';
+
+particle.style.animationDelay =
+Math.random()*5 + 's';
+
+particles.appendChild(particle);
+
+}
+
 /* SCROLL ANIMATION */
+
 const observer = new IntersectionObserver(entries=>{
+
 entries.forEach(entry=>{
+
 if(entry.isIntersecting){
 entry.target.classList.add('show');
 }
+
 });
+
 });
 
 document.querySelectorAll('.fade').forEach(el=>{
 observer.observe(el);
 });
+
+/* TYPING EFFECT */
+
+const words = [
+"Photo Editing Services",
+"Graphic Design Services",
+"Brand Identity Design",
+"Social Media Designs",
+"Video Editing Services",
+"Creative Visual Solutions"
+];
+
+let i = 0;
+let j = 0;
+let currentWord = "";
+let isDeleting = false;
+
+const typingElement = document.querySelector(".typing");
+
+function typeEffect(){
+
+currentWord = words[i];
+
+if(isDeleting){
+typingElement.textContent = currentWord.substring(0,j--);
+}else{
+typingElement.textContent = currentWord.substring(0,j++);
+}
+
+let speed = isDeleting ? 50 : 100;
+
+if(!isDeleting && j === currentWord.length){
+
+speed = 1800;
+isDeleting = true;
+
+}
+
+if(isDeleting && j === 0){
+
+isDeleting = false;
+i++;
+
+if(i === words.length){
+i = 0;
+}
+
+}
+
+setTimeout(typeEffect,speed);
+
+}
+
+typeEffect();
+
+/* MAGNETIC BUTTONS */
+
+document.querySelectorAll('.btn').forEach(btn=>{
+
+btn.addEventListener('mousemove',(e)=>{
+
+const rect = btn.getBoundingClientRect();
+
+const x = e.clientX - rect.left - rect.width/2;
+const y = e.clientY - rect.top - rect.height/2;
+
+btn.style.transform =
+`translate(${x*0.12}px, ${y*0.16}px)`;
+
+});
+
+btn.addEventListener('mouseleave',()=>{
+
+btn.style.transform = 'translate(0,0)';
+
+});
+
+});
+
+/* COUNTER */
+
+const counters = document.querySelectorAll('[data-target]');
+
+counters.forEach(counter=>{
+
+const updateCounter = ()=>{
+
+const target = +counter.getAttribute('data-target');
+const current = +counter.innerText;
+
+const increment = target / 80;
+
+if(current < target){
+
+counter.innerText =
+`${Math.ceil(current + increment)}`;
+
+setTimeout(updateCounter,20);
+
+}else{
+
+counter.innerText = target + '+';
+
+}
+
+}
+
+updateCounter();
+
+});
+
 </script>
 
 </body>
