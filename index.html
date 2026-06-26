@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DicksonGrafiks — Visuals That Speak</title>
+    <title>DicksonGrafiks — Visuals That Speaks</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/feather-icons"></script>
@@ -11,11 +11,11 @@
     <style>
         /* --- BASE & VARIABLES --- */
         :root {
-            --bg-color: #000000; /* Pure Black Background */
+            --bg-color: #000000;
             --text-color: #ffffff;
-            --accent-1: #0066ff; /* Vibrant Blue */
-            --accent-2: #8b5cf6; /* Electric Purple */
-            --accent-3: #00d4ff; /* Neon Cyan/Blue */
+            --accent-1: #0066ff; 
+            --accent-2: #8b5cf6; 
+            --accent-3: #00d4ff; 
             --glass-bg: rgba(15, 15, 20, 0.4);
             --glass-border: rgba(255, 255, 255, 0.08);
         }
@@ -32,6 +32,7 @@
             color: var(--text-color);
             overflow-x: hidden;
             scroll-behavior: smooth;
+            width: 100%;
         }
 
         /* --- INTERACTIVE CURSOR GLOW --- */
@@ -43,20 +44,19 @@
             border-radius: 50%;
             pointer-events: none;
             transform: translate(-50%, -50%);
-            z-index: 998; /* Just behind the content */
+            z-index: 998;
             transition: top 0.1s ease-out, left 0.1s ease-out;
         }
 
         /* --- WEB3 DYNAMIC BACKGROUND --- */
         .web3-bg {
             position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
             overflow: hidden;
             background: var(--bg-color);
         }
 
-        /* Glowing rotating orbs using Blue & Purple */
         .gradient-sphere {
             position: absolute;
             border-radius: 50%;
@@ -168,7 +168,7 @@
             color: var(--accent-1);
         }
 
-        /* --- ATTENTION GRABBING HERO SECTION --- */
+        /* --- HERO SECTION --- */
         .hero {
             min-height: 100vh;
             display: flex;
@@ -219,7 +219,7 @@
             background: linear-gradient(90deg, var(--accent-1), var(--accent-3), var(--accent-2));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0px 0px 30px rgba(139, 92, 246, 0.4); /* Neon Glow */
+            text-shadow: 0px 0px 30px rgba(139, 92, 246, 0.4); 
         }
 
         .dynamic-text {
@@ -275,7 +275,7 @@
             box-shadow: 0 10px 30px rgba(0, 102, 255, 0.4);
         }
 
-        /* --- GLASSMORPHISM CARDS (Work, Services, Stats) --- */
+        /* --- STATS SECTION --- */
         .stats {
             display: flex;
             justify-content: space-around;
@@ -298,6 +298,7 @@
             font-weight: 800;
         }
 
+        /* --- GENERAL SECTIONS --- */
         section {
             padding: 100px 5%;
         }
@@ -352,10 +353,16 @@
             transform: scale(1.03);
         }
 
+        .links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
         .links a {
             color: var(--text-color);
             text-decoration: none;
-            margin-right: 25px;
             border-bottom: 2px solid var(--accent-2);
             padding-bottom: 4px;
             font-weight: 500;
@@ -408,6 +415,68 @@
             font-size: 0.9rem;
             border-top: 1px solid var(--glass-border);
         }
+
+        /* ======================================================== */
+        /* --- STRICT MOBILE RESPONSIVENESS (Media Queries) --- */
+        /* ======================================================== */
+        @media (max-width: 768px) {
+            /* Shrink oversized text */
+            .main-title {
+                font-size: 3rem;
+                letter-spacing: -0.5px;
+            }
+            .dynamic-text {
+                font-size: 1.5rem;
+                height: 35px;
+            }
+            .hero-sub {
+                font-size: 1rem;
+                padding: 0 10px;
+            }
+            .stat-card h2 {
+                font-size: 2.8rem;
+            }
+            .section-title {
+                font-size: 2.2rem;
+                text-align: center;
+            }
+            .section-text {
+                font-size: 1rem;
+                text-align: center;
+            }
+            
+            /* Force grids into single columns to prevent horizontal scroll */
+            .preview-grid, .services, .countries {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            /* Adjust padding for smaller screens */
+            section {
+                padding: 60px 5%; 
+            }
+            .hero {
+                padding: 100px 5% 40px;
+            }
+
+            /* Clean up navigation for mobile */
+            nav {
+                justify-content: center; /* Center logo if links are hidden */
+            }
+            .nav-links {
+                display: none; /* Hide on small screens for a cleaner look */
+            }
+
+            /* Disable effects that don't work well on phones */
+            #cursor-glow {
+                display: none; 
+            }
+            
+            /* Adjust sphere sizes for mobile */
+            .sphere-1 { width: 90vw; height: 90vw; }
+            .sphere-2 { width: 80vw; height: 80vw; }
+            .sphere-3 { width: 70vw; height: 70vw; }
+        }
     </style>
 </head>
 
@@ -451,7 +520,7 @@
             </div>
 
             <h1 class="main-title">
-                VISUALS THAT <span>SPEAK</span>
+                VISUALS THAT <span>SPEAKS</span>
             </h1>
 
             <h2 class="dynamic-text">
@@ -503,9 +572,9 @@
             </div>
 
             <div class="project fade">
-                <img src="images/Plumbing Design.png" alt="Social Media Campaign" onerror="this.style.display='none'">
+                <img src="images/Plumbing Design.png" alt="Marketing Design" onerror="this.style.display='none'">
                 <div>
-                    <h3>Promotional Flyer Design</h3>
+                    <h3>Marketing Flyer Design</h3>
                     <p style="color: #bbb; margin-top: 10px; line-height: 1.5;">High-performing visuals designed to grab attention instantly and increase engagement.</p>
                 </div>
             </div>
@@ -539,7 +608,7 @@
             About & Expertise
         </h2>
         <p class="section-text fade">
-            DicksonGrafiks is a premium visual design brand focused on creating bold, modern and impactful creative visuals that stand out and communicate effectively across all platforms.
+            DicksonGrafiks, founded by Goodness N. Dickson, is a premium visual design brand focused on creating bold, modern and impactful creative visuals that stand out and communicate effectively across all platforms.
         </p>
         
         <div class="services">
@@ -602,7 +671,7 @@
     </section>
 
     <footer>
-        © 2026 DicksonGrafiks — Visuals That Speak
+        © 2026 DicksonGrafiks — Visuals That Speaks | Goodness N. Dickson
     </footer>
 
     <!-- WHATSAPP -->
@@ -611,11 +680,13 @@
     </a>
 
     <script>
-        // 1. Interactive Cursor Glow
+        // 1. Interactive Cursor Glow (Desktop Only)
         const cursorGlow = document.getElementById('cursor-glow');
         document.addEventListener('mousemove', (e) => {
-            cursorGlow.style.left = e.clientX + 'px';
-            cursorGlow.style.top = e.clientY + 'px';
+            if(window.innerWidth > 768) {
+                cursorGlow.style.left = e.clientX + 'px';
+                cursorGlow.style.top = e.clientY + 'px';
+            }
         });
 
         // 2. Loader Removal
@@ -633,7 +704,7 @@
             setTimeout(removeLoader, 800); 
             feather.replace();
 
-            // 3. The 3-Second Smooth Sliding Text Animation (Web3 Vibe)
+            // 3. The 3-Second Smooth Sliding Text Animation
             const words = [
                 "Brand Identity.", 
                 "Motion Graphics.", 
@@ -648,19 +719,15 @@
                 typingSpan.textContent = words[currentWordIndex];
 
                 setInterval(() => {
-                    // Slide up and fade out
                     typingSpan.classList.add('slide-out');
                     
                     setTimeout(() => {
-                        // Change word
                         currentWordIndex = (currentWordIndex + 1) % words.length;
                         typingSpan.textContent = words[currentWordIndex];
                         
-                        // Prepare to slide in from bottom
                         typingSpan.classList.remove('slide-out');
                         typingSpan.classList.add('slide-in');
                         
-                        // Execute slide in
                         setTimeout(() => {
                             typingSpan.classList.remove('slide-in');
                             typingSpan.style.transform = 'translateY(0)';
