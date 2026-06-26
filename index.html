@@ -1,1109 +1,728 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>DicksonGrafiks — Visuals That Speak</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/feather-icons"></script>
-
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Inter',sans-serif;
-}
-
-html{
-scroll-behavior:smooth;
-}
-
-body{
-background:#050505;
-color:#fff;
-overflow-x:hidden;
-position:relative;
-}
-
-/* BACKGROUND */
-
-.bg{
-position:fixed;
-inset:0;
-z-index:-4;
-background:
-radial-gradient(circle at 20% 30%, #00f7ff22, transparent 35%),
-radial-gradient(circle at 80% 70%, #7a00ff22, transparent 35%),
-radial-gradient(circle at 50% 50%, #ffffff08, transparent 50%);
-filter:blur(100px);
-animation:moveBg 15s ease-in-out infinite alternate;
-}
-
-@keyframes moveBg{
-0%{
-transform:translate(0,0) scale(1);
-}
-100%{
-transform:translate(-60px,50px) scale(1.1);
-}
-}
-
-/* ENERGY LAYER */
-
-body::before{
-content:"";
-position:fixed;
-width:200%;
-height:200%;
-top:-50%;
-left:-50%;
-background:conic-gradient(from 180deg,#00f7ff10,#7a00ff10,#000,#00f7ff10);
-animation:spin 25s linear infinite;
-z-index:-3;
-opacity:.35;
-}
-
-@keyframes spin{
-100%{
-transform:rotate(360deg);
-}
-}
-
-/* NOISE */
-
-body::after{
-content:"";
-position:fixed;
-inset:0;
-background:url('https://grainy-gradients.vercel.app/noise.svg');
-opacity:.04;
-pointer-events:none;
-z-index:-2;
-}
-
-/* PARTICLES */
-
-.particles{
-position:fixed;
-inset:0;
-overflow:hidden;
-pointer-events:none;
-z-index:-1;
-}
-
-.particles span{
-position:absolute;
-display:block;
-border-radius:50%;
-background:#ffffff33;
-animation:floatParticle linear infinite;
-}
-
-@keyframes floatParticle{
-0%{
-transform:translateY(100vh) scale(0);
-opacity:0;
-}
-10%{
-opacity:1;
-}
-100%{
-transform:translateY(-10vh) scale(1);
-opacity:0;
-}
-}
-
-/* LOADER */
-
-.loader-wrapper{
-position:fixed;
-inset:0;
-background:#050505;
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:99999;
-transition:.8s;
-}
-
-.loader-wrapper.hide{
-opacity:0;
-visibility:hidden;
-}
-
-.loader-logo{
-font-size:clamp(30px,6vw,60px);
-font-weight:800;
-background:linear-gradient(90deg,#00f7ff,#7a00ff);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-animation:pulseLoader 1.4s infinite;
-}
-
-@keyframes pulseLoader{
-50%{
-transform:scale(1.08);
-}
-}
-
-/* CURSOR */
-
-.cursor-glow{
-position:fixed;
-width:240px;
-height:240px;
-border-radius:50%;
-background:radial-gradient(circle,#00f7ff22,transparent 70%);
-transform:translate(-50%,-50%);
-pointer-events:none;
-z-index:0;
-filter:blur(20px);
-}
-
-/* NAV */
-
-nav{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-padding:16px 6%;
-display:flex;
-justify-content:space-between;
-align-items:center;
-background:rgba(0,0,0,0.4);
-backdrop-filter:blur(14px);
-z-index:1000;
-border-bottom:1px solid rgba(255,255,255,0.05);
-}
-
-.logo{
-font-size:18px;
-font-weight:700;
-letter-spacing:.5px;
-}
-
-.nav-links{
-display:flex;
-gap:22px;
-flex-wrap:wrap;
-}
-
-.nav-links a{
-text-decoration:none;
-color:#aaa;
-font-size:14px;
-transition:.3s;
-}
-
-.nav-links a:hover{
-color:#fff;
-}
-
-/* HERO */
-
-.hero{
-min-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-text-align:center;
-padding:140px 6% 100px;
-}
-
-.hero-content{
-width:100%;
-max-width:1100px;
-margin:auto;
-}
-
-.main-title{
-font-size:clamp(48px,9vw,110px);
-font-weight:800;
-line-height:.95;
-letter-spacing:-3px;
-}
-
-.main-title span{
-background:linear-gradient(90deg,#00f7ff,#7a00ff);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-.dynamic-text{
-margin-top:22px;
-font-size:clamp(20px,3vw,36px);
-font-weight:600;
-min-height:55px;
-color:#ddd;
-}
-
-.typing{
-background:linear-gradient(90deg,#00f7ff,#7a00ff);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-border-right:3px solid #00f7ff;
-padding-right:6px;
-animation:blink .7s infinite;
-}
-
-@keyframes blink{
-50%{
-border-color:transparent;
-}
-}
-
-.hero-sub{
-max-width:760px;
-margin:26px auto 0;
-font-size:clamp(15px,2vw,18px);
-line-height:1.8;
-color:#aaa;
-}
-
-.hero-tags{
-display:flex;
-justify-content:center;
-gap:12px;
-flex-wrap:wrap;
-margin-top:30px;
-}
-
-.hero-tags span{
-padding:10px 18px;
-border-radius:30px;
-background:rgba(255,255,255,0.05);
-border:1px solid rgba(255,255,255,0.08);
-font-size:13px;
-color:#ccc;
-backdrop-filter:blur(10px);
-transition:.3s;
-}
-
-.hero-tags span:hover{
-transform:translateY(-5px);
-border-color:#00f7ff;
-color:#fff;
-}
-
-/* BUTTON */
-
-.btn{
-margin-top:35px;
-padding:15px 34px;
-border:none;
-border-radius:40px;
-background:linear-gradient(90deg,#00f7ff,#7a00ff);
-color:#fff;
-font-weight:600;
-cursor:pointer;
-font-size:15px;
-transition:transform .2s ease;
-}
-
-/* STATS */
-
-.stats{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-padding:0 8% 100px;
-}
-
-.stat-card{
-padding:40px 25px;
-border-radius:24px;
-background:rgba(255,255,255,0.03);
-border:1px solid rgba(255,255,255,0.08);
-text-align:center;
-backdrop-filter:blur(14px);
-transition:.4s;
-}
-
-.stat-card:hover{
-transform:translateY(-8px);
-border-color:#00f7ff;
-}
-
-.stat-card h2{
-font-size:50px;
-margin-bottom:10px;
-background:linear-gradient(90deg,#00f7ff,#7a00ff);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-.stat-card p{
-color:#aaa;
-}
-
-/* SECTIONS */
-
-section{
-padding:110px 8%;
-}
-
-.section-title{
-font-size:clamp(30px,5vw,46px);
-margin-bottom:18px;
-text-align:center;
-}
-
-.section-text{
-max-width:700px;
-margin:0 auto 50px;
-text-align:center;
-line-height:1.8;
-color:#999;
-}
-
-/* PROJECTS */
-
-.project{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:45px;
-align-items:center;
-margin-bottom:90px;
-}
-
-.project img{
-width:100%;
-display:block;
-border-radius:22px;
-transition:.5s;
-box-shadow:0 0 0 transparent;
-}
-
-.project img:hover{
-transform:scale(1.03);
-box-shadow:0 0 35px rgba(0,247,255,0.2);
-}
-
-.project h3{
-font-size:30px;
-margin-bottom:14px;
-}
-
-.project p{
-color:#aaa;
-line-height:1.8;
-}
-
-/* GRID */
-
-.preview-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:18px;
-}
-
-.preview-grid img{
-width:100%;
-aspect-ratio:1/1;
-object-fit:cover;
-border-radius:18px;
-transition:.4s;
-}
-
-.preview-grid img:hover{
-transform:translateY(-8px);
-box-shadow:0 0 30px rgba(0,247,255,0.25);
-}
-
-/* SERVICES */
-
-.services{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-gap:20px;
-}
-
-.service{
-padding:35px 25px;
-border-radius:24px;
-background:rgba(255,255,255,0.03);
-border:1px solid rgba(255,255,255,0.08);
-text-align:center;
-transition:.4s;
-}
-
-.service:hover{
-transform:translateY(-10px);
-border-color:#00f7ff;
-}
-
-/* COUNTRIES */
-
-.countries{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-margin-top:40px;
-}
-
-.country{
-padding:30px;
-border-radius:22px;
-background:rgba(255,255,255,0.03);
-border:1px solid rgba(255,255,255,0.08);
-text-align:center;
-transition:.4s;
-}
-
-.country:hover{
-transform:translateY(-10px);
-border-color:#7a00ff;
-}
-
-.country span{
-font-size:34px;
-display:block;
-margin-bottom:12px;
-}
-
-/* LINKS */
-
-.links{
-display:flex;
-justify-content:center;
-flex-wrap:wrap;
-gap:15px;
-}
-
-.links a{
-padding:12px 22px;
-border-radius:40px;
-border:1px solid #222;
-text-decoration:none;
-color:#aaa;
-transition:.3s;
-}
-
-.links a:hover{
-border-color:#00f7ff;
-color:#fff;
-}
-
-/* FOOTER */
-
-footer{
-padding:40px 20px;
-text-align:center;
-color:#666;
-font-size:14px;
-}
-
-/* WHATSAPP */
-
-.whatsapp-float{
-position:fixed;
-bottom:22px;
-right:22px;
-width:58px;
-height:58px;
-border-radius:50%;
-background:linear-gradient(135deg,#00f7ff,#7a00ff);
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:999;
-animation:pulse 2s infinite;
-}
-
-@keyframes pulse{
-70%{
-box-shadow:0 0 0 15px rgba(0,247,255,0);
-}
-100%{
-box-shadow:0 0 0 0 rgba(0,247,255,0);
-}
-}
-
-/* FADE */
-
-.fade{
-opacity:0;
-transform:translateY(40px);
-transition:.8s ease;
-}
-
-.fade.show{
-opacity:1;
-transform:translateY(0);
-}
-
-/* RESPONSIVE */
-
-@media(max-width:900px){
-
-.project{
-grid-template-columns:1fr;
-}
-
-.project div{
-text-align:center;
-}
-
-nav{
-padding:14px 5%;
-}
-
-section{
-padding:90px 6%;
-}
-
-.stats{
-padding:0 6% 80px;
-}
-
-}
-
-@media(max-width:700px){
-
-nav{
-flex-direction:column;
-gap:10px;
-}
-
-.nav-links{
-justify-content:center;
-gap:14px;
-}
-
-.hero{
-padding-top:170px;
-}
-
-.main-title{
-letter-spacing:-1px;
-}
-
-.dynamic-text{
-min-height:70px;
-}
-
-.hero-tags span{
-font-size:12px;
-padding:9px 14px;
-}
-
-.btn{
-width:100%;
-max-width:320px;
-}
-
-.preview-grid{
-grid-template-columns:1fr 1fr;
-}
-
-}
-
-@media(max-width:500px){
-
-.preview-grid{
-grid-template-columns:1fr;
-}
-
-.section-title{
-font-size:30px;
-}
-
-.stat-card h2{
-font-size:42px;
-}
-
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DicksonGrafiks — Visuals That Speak</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <style>
+        /* --- BASE & VARIABLES --- */
+        :root {
+            --bg-color: #000000; /* Pure Black Background */
+            --text-color: #ffffff;
+            --accent-1: #0066ff; /* Vibrant Blue */
+            --accent-2: #8b5cf6; /* Electric Purple */
+            --accent-3: #00d4ff; /* Neon Cyan/Blue */
+            --glass-bg: rgba(15, 15, 20, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* --- INTERACTIVE CURSOR GLOW --- */
+        #cursor-glow {
+            position: fixed;
+            width: 400px; 
+            height: 400px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 998; /* Just behind the content */
+            transition: top 0.1s ease-out, left 0.1s ease-out;
+        }
+
+        /* --- WEB3 DYNAMIC BACKGROUND --- */
+        .web3-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: var(--bg-color);
+        }
+
+        /* Glowing rotating orbs using Blue & Purple */
+        .gradient-sphere {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px); 
+            opacity: 0.5;
+            animation: rotateBg 25s linear infinite;
+        }
+
+        .sphere-1 {
+            width: 55vw; height: 55vw;
+            background: var(--accent-1);
+            top: -15vw; left: -10vw;
+            transform-origin: center right;
+        }
+
+        .sphere-2 {
+            width: 45vw; height: 45vw;
+            background: var(--accent-2);
+            bottom: -10vw; right: -10vw;
+            transform-origin: center left;
+            animation-duration: 30s;
+            animation-direction: reverse;
+        }
+
+        .sphere-3 {
+            width: 35vw; height: 35vw;
+            background: var(--accent-3);
+            top: 30vh; left: 25vw;
+            transform-origin: bottom right;
+            animation-duration: 35s;
+        }
+
+        @keyframes rotateBg {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, black 40%, transparent 90%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 90%);
+        }
+
+        /* --- LOADER --- */
+        .loader-wrapper {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-color);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+
+        .nav-links a {
+            color: #d1d1d1;
+            text-decoration: none;
+            margin-left: 30px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-1);
+        }
+
+        /* --- ATTENTION GRABBING HERO SECTION --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 120px 5% 50px;
+        }
+
+        .hero-badge {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .pulse-dot {
+            width: 8px; height: 8px;
+            background: var(--accent-3);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-3);
+            animation: pulse-dot 1.5s infinite alternate;
+        }
+
+        @keyframes pulse-dot {
+            0% { opacity: 0.4; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .main-title {
+            font-size: 5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+        }
+
+        .main-title span {
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-3), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 0px 30px rgba(139, 92, 246, 0.4); /* Neon Glow */
+        }
+
+        .dynamic-text {
+            font-size: 2.2rem;
+            font-weight: 400;
+            margin-bottom: 25px;
+            height: 45px;
+            color: #b3b3c2;
+        }
+
+        .typing {
+            font-weight: 700;
+            color: #fff;
+            display: inline-block;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .typing.slide-out {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        .typing.slide-in {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .hero-sub {
+            max-width: 650px;
+            color: #a0a0b0;
+            margin-bottom: 40px;
+            line-height: 1.7;
+            font-size: 1.15rem;
+        }
+
+        .btn {
+            background: #fff;
+            color: #000;
+            padding: 16px 45px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn:hover {
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+            color: #fff;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 102, 255, 0.4);
+        }
+
+        /* --- GLASSMORPHISM CARDS (Work, Services, Stats) --- */
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 80px 5%;
+            flex-wrap: wrap;
+            gap: 30px;
+            background: linear-gradient(180deg, transparent, rgba(0,0,0,0.6), transparent);
+        }
+
+        .stat-card {
+            text-align: center;
+        }
+
+        .stat-card h2 {
+            font-size: 4rem;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+            font-weight: 800;
+        }
+
+        section {
+            padding: 100px 5%;
+        }
+
+        .section-title {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .section-text {
+            color: #a0a0b0;
+            max-width: 700px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .preview-grid, .services, .countries {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .project, .service, .country {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            padding: 25px;
+            border-radius: 15px;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s;
+        }
+
+        .project:hover, .service:hover, .country:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .project img, .preview-grid img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .project:hover img {
+            transform: scale(1.03);
+        }
+
+        .links a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-right: 25px;
+            border-bottom: 2px solid var(--accent-2);
+            padding-bottom: 4px;
+            font-weight: 500;
+            transition: color 0.3s, border-color 0.3s;
+        }
+        
+        .links a:hover {
+            color: var(--accent-3);
+            border-color: var(--accent-3);
+        }
+
+        /* --- UTILITIES & ANIMATIONS --- */
+        .fade {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #25d366, #128c7e);
+            color: white;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+            z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.15) rotate(10deg);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0,0,0,0.8);
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid var(--glass-border);
+        }
+    </style>
 </head>
 
 <body>
 
-<!-- LOADER -->
-<div class="loader-wrapper">
-<div class="loader-logo">DicksonGrafiks</div>
-</div>
-
-<div class="bg"></div>
-<div class="particles"></div>
-<div class="cursor-glow"></div>
-
-<!-- NAV -->
-<nav>
-
-<div class="logo">
-DicksonGrafiks
-</div>
-
-<div class="nav-links">
-<a href="#work">Work</a>
-<a href="#about">About</a>
-<a href="#services">Services</a>
-<a href="#contact">Contact</a>
-</div>
-
-</nav>
-
-<!-- HERO -->
-
-<section class="hero fade">
-
-<div class="hero-content">
-
-<h1 class="main-title">
-VISUALS THAT <span>SPEAK</span>
-</h1>
-
-<h2 class="dynamic-text">
-We Offer <span class="typing"></span>
-</h2>
-
-<p class="hero-sub">
-Bold visuals, premium edits and modern creative solutions for brands, businesses and individuals.
-</p>
-
-<div class="hero-tags">
-<span>Creative</span>
-<span>Premium</span>
-<span>Fast Delivery</span>
-<span>Modern Visuals</span>
-</div>
-
-<button class="btn" onclick="window.open('https://wa.me/2349165966831')">
-Start a Project
-</button>
-
-</div>
-
-</section>
-
-<!-- STATS -->
-
-<section class="stats fade">
-
-<div class="stat-card">
-<h2 data-target="120">0</h2>
-<p>Projects Completed</p>
-</div>
-
-<div class="stat-card">
-<h2 data-target="4">0</h2>
-<p>Countries Reached</p>
-</div>
-
-<div class="stat-card">
-<h2 data-target="98">0</h2>
-<p>Client Satisfaction</p>
-</div>
-
-</section>
-
-<!-- WORK -->
-
-<section id="work">
-
-<h2 class="section-title fade">Selected Work</h2>
-
-<p class="section-text fade">
-A curated selection of our best visual projects and premium creative executions.
-</p>
-
-<div class="project fade">
-
-<img src="images/Mentos.jpg" alt="Brand Identity">
-
-<div>
-<h3>Brand Identity</h3>
-<p>
-Clean and bold identity systems designed to build strong visual recognition and memorable brand experiences.
-</p>
-</div>
-
-</div>
-
-<div class="project fade">
-
-<img src="images/Graphics 1.jpg" alt="Social Media Campaign">
-
-<div>
-<h3>Social Media Campaign</h3>
-<p>
-High-performing visuals designed to grab attention instantly and increase engagement across platforms.
-</p>
-</div>
-
-</div>
-
-</section>
-
-<!-- GALLERY -->
-
-<section>
-
-<h2 class="section-title fade">More Designs</h2>
-
-<p class="section-text fade">
-Explore more premium visuals and creative edits from our portfolio collection.
-</p>
-
-<div class="preview-grid fade">
-
-<img src="images/Edit 5.jpg">
-<img src="images/Edit 10.jpg">
-<img src="images/Edit 15.jpg">
-<img src="images/Edit 42.jpg">
-
-</div>
-
-<div style="text-align:center;">
-
-<button class="btn" onclick="window.open('https://www.behance.net/goodnessdickson1')">
-View Full Portfolio
-</button>
-
-</div>
-
-</section>
-
-<!-- ABOUT -->
-
-<section id="about" class="fade">
-
-<h2 class="section-title">
-About DicksonGrafiks
-</h2>
-
-<p class="section-text">
-DicksonGrafiks is a premium visual design brand focused on creating bold, modern and impactful creative visuals that stand out and communicate effectively.
-</p>
-
-</section>
-
-<!-- SERVICES -->
-
-<section id="services">
-
-<h2 class="section-title fade">
-What We Do
-</h2>
-
-<div class="services">
-
-<div class="service fade">
-Brand & Identity Design
-</div>
-
-<div class="service fade">
-Social Media Design
-</div>
-
-<div class="service fade">
-Photo Retouching
-</div>
-
-<div class="service fade">
-Motion Graphics
-</div>
-
-<div class="service fade">
-Video Editing
-</div>
-
-<div class="service fade">
-Web Visual Design
-</div>
-
-</div>
-
-</section>
-
-<!-- COUNTRIES -->
-
-<section>
-
-<h2 class="section-title fade">
-Countries We’ve Worked In
-</h2>
-
-<p class="section-text fade">
-Our creative reach spans across multiple countries and international collaborations.
-</p>
-
-<div class="countries fade">
-
-<div class="country">
-<span>🇳🇬</span>
-<h3>Nigeria</h3>
-</div>
-
-<div class="country">
-<span>🇬🇭</span>
-<h3>Ghana</h3>
-</div>
-
-<div class="country">
-<span>🇬🇧</span>
-<h3>United Kingdom</h3>
-</div>
-
-<div class="country">
-<span>🇲🇼</span>
-<h3>Malawi</h3>
-</div>
-
-</div>
-
-</section>
-
-<!-- LEARN -->
-
-<section class="fade" style="text-align:center;">
-
-<h2 class="section-title">
-Want To Learn Graphic Design?
-</h2>
-
-<p class="section-text">
-Message us on WhatsApp and start your creative journey today.
-</p>
-
-<button class="btn" onclick="window.open('https://wa.me/2349165966831')">
-Message Us
-</button>
-
-</section>
-
-<!-- CONNECT -->
-
-<section>
-
-<h2 class="section-title fade">
-Connect With Us
-</h2>
-
-<div class="links fade">
-
-<a href="https://www.behance.net/goodnessdickson1">Behance</a>
-
-<a href="https://linkedin.com/in/goodness-dickson-ba1b333a8">LinkedIn</a>
-
-<a href="https://youtube.com/@dicksongrafiks">YouTube</a>
-
-<a href="https://x.com/DicksonGrafiks">X</a>
-
-<a href="https://facebook.com/DicksonGrafiks">Facebook</a>
-
-</div>
-
-</section>
-
-<!-- CTA -->
-
-<section id="contact" class="fade" style="text-align:center;">
-
-<h2 class="section-title">
-Let’s Create Something Powerful
-</h2>
-
-<button class="btn" onclick="window.open('https://wa.me/2349165966831')">
-Start Now
-</button>
-
-</section>
-
-<footer>
-© 2026 DicksonGrafiks — Visuals That Speak
-</footer>
-
-<!-- WHATSAPP -->
-
-<a href="https://wa.me/2349165966831" class="whatsapp-float">
-<i data-feather="message-circle"></i>
-</a>
-
-<script>
-
-feather.replace();
-
-/* LOADER */
-
-window.addEventListener('load',()=>{
-
-setTimeout(()=>{
-document.querySelector('.loader-wrapper').classList.add('hide');
-},1200);
-
-});
-
-/* CURSOR GLOW */
-
-const glow = document.querySelector('.cursor-glow');
-
-document.addEventListener('mousemove',(e)=>{
-
-glow.style.left = e.clientX + 'px';
-glow.style.top = e.clientY + 'px';
-
-});
-
-/* PARTICLES */
-
-const particles = document.querySelector('.particles');
-
-for(let i=0;i<40;i++){
-
-const particle = document.createElement('span');
-
-particle.style.left = Math.random()*100 + 'vw';
-
-particle.style.width =
-particle.style.height =
-Math.random()*4 + 2 + 'px';
-
-particle.style.animationDuration =
-(Math.random()*10 + 10) + 's';
-
-particle.style.animationDelay =
-Math.random()*5 + 's';
-
-particles.appendChild(particle);
-
-}
-
-/* SCROLL ANIMATION */
-
-const observer = new IntersectionObserver(entries=>{
-
-entries.forEach(entry=>{
-
-if(entry.isIntersecting){
-entry.target.classList.add('show');
-}
-
-});
-
-});
-
-document.querySelectorAll('.fade').forEach(el=>{
-observer.observe(el);
-});
-
-/* TYPING EFFECT */
-
-const words = [
-"Photo Editing Services",
-"Graphic Design Services",
-"Brand Identity Design",
-"Social Media Designs",
-"Video Editing Services",
-"Creative Visual Solutions"
-];
-
-let i = 0;
-let j = 0;
-let currentWord = "";
-let isDeleting = false;
-
-const typingElement = document.querySelector(".typing");
-
-function typeEffect(){
-
-currentWord = words[i];
-
-if(isDeleting){
-typingElement.textContent = currentWord.substring(0,j--);
-}else{
-typingElement.textContent = currentWord.substring(0,j++);
-}
-
-let speed = isDeleting ? 50 : 100;
-
-if(!isDeleting && j === currentWord.length){
-
-speed = 1800;
-isDeleting = true;
-
-}
-
-if(isDeleting && j === 0){
-
-isDeleting = false;
-i++;
-
-if(i === words.length){
-i = 0;
-}
-
-}
-
-setTimeout(typeEffect,speed);
-
-}
-
-typeEffect();
-
-/* MAGNETIC BUTTONS */
-
-document.querySelectorAll('.btn').forEach(btn=>{
-
-btn.addEventListener('mousemove',(e)=>{
-
-const rect = btn.getBoundingClientRect();
-
-const x = e.clientX - rect.left - rect.width/2;
-const y = e.clientY - rect.top - rect.height/2;
-
-btn.style.transform =
-`translate(${x*0.12}px, ${y*0.16}px)`;
-
-});
-
-btn.addEventListener('mouseleave',()=>{
-
-btn.style.transform = 'translate(0,0)';
-
-});
-
-});
-
-/* COUNTER */
-
-const counters = document.querySelectorAll('[data-target]');
-
-counters.forEach(counter=>{
-
-const updateCounter = ()=>{
-
-const target = +counter.getAttribute('data-target');
-const current = +counter.innerText;
-
-const increment = target / 80;
-
-if(current < target){
-
-counter.innerText =
-`${Math.ceil(current + increment)}`;
-
-setTimeout(updateCounter,20);
-
-}else{
-
-counter.innerText = target + '+';
-
-}
-
-}
-
-updateCounter();
-
-});
-
-</script>
+    <!-- INTERACTIVE CURSOR GLOW -->
+    <div id="cursor-glow"></div>
+
+    <!-- WEB3 DYNAMIC BACKGROUND -->
+    <div class="web3-bg">
+        <div class="gradient-sphere sphere-1"></div>
+        <div class="gradient-sphere sphere-2"></div>
+        <div class="gradient-sphere sphere-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- LOADER -->
+    <div class="loader-wrapper" id="loader">
+        <div class="loader-logo">DicksonGrafiks</div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <nav>
+        <div class="logo">
+            DicksonGrafiks
+        </div>
+        <div class="nav-links">
+            <a href="#work">Work</a>
+            <a href="#about">About</a>
+            <a href="#services">Services</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+
+    <!-- UPGRADED HERO SECTION -->
+    <section class="hero fade">
+        <div class="hero-content">
+            
+            <div class="hero-badge fade">
+                <span class="pulse-dot"></span> Premium Visual Design
+            </div>
+
+            <h1 class="main-title">
+                VISUALS THAT <span>SPEAK</span>
+            </h1>
+
+            <h2 class="dynamic-text">
+                We Offer <span class="typing"></span>
+            </h2>
+
+            <p class="hero-sub">
+                Bold visuals, premium edits and modern creative solutions for brands, businesses and individuals looking to make a lasting impact.
+            </p>
+
+            <button class="btn" onclick="window.open('https://wa.me/2349165966831')">
+                Start a Project
+            </button>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="stats fade">
+        <div class="stat-card">
+            <h2 data-target="120">0</h2>
+            <p style="color: #bbb; font-weight: 500;">Projects Completed</p>
+        </div>
+
+        <div class="stat-card">
+            <h2 data-target="4">0</h2>
+            <p style="color: #bbb; font-weight: 500;">Countries Reached</p>
+        </div>
+
+        <div class="stat-card">
+            <h2 data-target="98">0</h2>
+            <p style="color: #bbb; font-weight: 500;">Client Satisfaction</p>
+        </div>
+    </section>
+
+    <!-- WORK -->
+    <section id="work">
+        <h2 class="section-title fade">Selected Work</h2>
+        <p class="section-text fade">
+            A curated selection of our best visual projects and premium creative executions.
+        </p>
+
+        <div class="preview-grid">
+            <div class="project fade">
+                <img src="images/Premium Nail Flyer-01.png" alt="Brand Identity Project" onerror="this.style.display='none'">
+                <div>
+                    <h3>Business Flyer Design</h3>
+                    <p style="color: #bbb; margin-top: 10px; line-height: 1.5;">Clean and bold identity systems designed to build strong visual recognition.</p>
+                </div>
+            </div>
+
+            <div class="project fade">
+                <img src="images/Plumbing Design.png" alt="Social Media Campaign" onerror="this.style.display='none'">
+                <div>
+                    <h3>Promotional Flyer Design</h3>
+                    <p style="color: #bbb; margin-top: 10px; line-height: 1.5;">High-performing visuals designed to grab attention instantly and increase engagement.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section>
+        <h2 class="section-title fade">Photo Edit</h2>
+        <p class="section-text fade">
+            Explore more premium visuals and creative edits from our portfolio collection.
+        </p>
+
+        <div class="preview-grid fade">
+            <img src="images/Edit 5.jpg" alt="Creative Design 1" onerror="this.style.display='none'">
+            <img src="images/Edit 10.jpg" alt="Creative Design 2" onerror="this.style.display='none'">
+            <img src="images/Edit 15.jpg" alt="Creative Design 3" onerror="this.style.display='none'">
+            <img src="images/Edit 42.jpg" alt="Creative Design 4" onerror="this.style.display='none'">
+        </div>
+
+        <div style="text-align:center; margin-top: 40px;">
+            <button class="btn" onclick="window.open('https://www.behance.net/goodnessdickson1')">
+                View Full Portfolio
+            </button>
+        </div>
+    </section>
+
+    <!-- ABOUT & SERVICES -->
+    <section id="about">
+        <h2 class="section-title fade">
+            About & Expertise
+        </h2>
+        <p class="section-text fade">
+            DicksonGrafiks is a premium visual design brand focused on creating bold, modern and impactful creative visuals that stand out and communicate effectively across all platforms.
+        </p>
+        
+        <div class="services">
+            <div class="service fade">Brand & Identity Design</div>
+            <div class="service fade">Social Media Design</div>
+            <div class="service fade">Photo Retouching</div>
+            <div class="service fade">Motion Graphics</div>
+            <div class="service fade">Video Editing</div>
+            <div class="service fade">Web Visual Design</div>
+        </div>
+    </section>
+
+    <!-- COUNTRIES -->
+    <section>
+        <h2 class="section-title fade">
+            Global Reach
+        </h2>
+        <p class="section-text fade">
+            Our creative reach spans across multiple countries and international collaborations.
+        </p>
+        <div class="countries fade">
+            <div class="country" style="text-align: center;">
+                <span style="font-size: 2.5rem;">🇳🇬</span>
+                <h3 style="margin-top: 15px;">Nigeria</h3>
+            </div>
+            <div class="country" style="text-align: center;">
+                <span style="font-size: 2.5rem;">🇬🇭</span>
+                <h3 style="margin-top: 15px;">Ghana</h3>
+            </div>
+            <div class="country" style="text-align: center;">
+                <span style="font-size: 2.5rem;">🇬🇧</span>
+                <h3 style="margin-top: 15px;">United Kingdom</h3>
+            </div>
+            <div class="country" style="text-align: center;">
+                <span style="font-size: 2.5rem;">🇲🇼</span>
+                <h3 style="margin-top: 15px;">Malawi</h3>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONNECT & CTA -->
+    <section id="contact" style="text-align:center;">
+        <h2 class="section-title fade">
+            Let’s Create Something Powerful
+        </h2>
+        <p class="section-text fade" style="margin: 0 auto 30px;">
+            Want to learn Graphic Design or start a project? Message us today.
+        </p>
+        <button class="btn fade" onclick="window.open('https://wa.me/2349165966831')">
+            Start Now
+        </button>
+
+        <div class="links fade" style="margin-top: 60px;">
+            <a href="https://www.behance.net/goodnessdickson1" target="_blank">Behance</a>
+            <a href="https://linkedin.com/in/goodness-dickson-ba1b333a8" target="_blank">LinkedIn</a>
+            <a href="https://youtube.com/@dicksongrafiks" target="_blank">YouTube</a>
+            <a href="https://x.com/DicksonGrafiks" target="_blank">X</a>
+            <a href="https://facebook.com/DicksonGrafiks" target="_blank">Facebook</a>
+        </div>
+    </section>
+
+    <footer>
+        © 2026 DicksonGrafiks — Visuals That Speak
+    </footer>
+
+    <!-- WHATSAPP -->
+    <a href="https://wa.me/2349165966831" class="whatsapp-float">
+        <i data-feather="message-circle"></i>
+    </a>
+
+    <script>
+        // 1. Interactive Cursor Glow
+        const cursorGlow = document.getElementById('cursor-glow');
+        document.addEventListener('mousemove', (e) => {
+            cursorGlow.style.left = e.clientX + 'px';
+            cursorGlow.style.top = e.clientY + 'px';
+        });
+
+        // 2. Loader Removal
+        const removeLoader = () => {
+            const loader = document.getElementById('loader');
+            if (loader && loader.style.display !== 'none') {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500); 
+            }
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(removeLoader, 800); 
+            feather.replace();
+
+            // 3. The 3-Second Smooth Sliding Text Animation (Web3 Vibe)
+            const words = [
+                "Brand Identity.", 
+                "Motion Graphics.", 
+                "Premium Editing.", 
+                "Creative Design.", 
+                "Video Retouching."
+            ];
+            let currentWordIndex = 0;
+            const typingSpan = document.querySelector('.typing');
+
+            if (typingSpan) {
+                typingSpan.textContent = words[currentWordIndex];
+
+                setInterval(() => {
+                    // Slide up and fade out
+                    typingSpan.classList.add('slide-out');
+                    
+                    setTimeout(() => {
+                        // Change word
+                        currentWordIndex = (currentWordIndex + 1) % words.length;
+                        typingSpan.textContent = words[currentWordIndex];
+                        
+                        // Prepare to slide in from bottom
+                        typingSpan.classList.remove('slide-out');
+                        typingSpan.classList.add('slide-in');
+                        
+                        // Execute slide in
+                        setTimeout(() => {
+                            typingSpan.classList.remove('slide-in');
+                            typingSpan.style.transform = 'translateY(0)';
+                            typingSpan.style.opacity = '1';
+                        }, 50);
+
+                    }, 500); 
+                    
+                }, 3000); 
+            }
+
+            // 4. Scroll Reveal Animations
+            const fadeElements = document.querySelectorAll('.fade');
+            const scrollObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            fadeElements.forEach(el => scrollObserver.observe(el));
+
+            // 5. Number Counter Animation
+            const statCards = document.querySelectorAll('.stat-card h2');
+            let hasCounted = false;
+
+            const statsObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !hasCounted) {
+                        hasCounted = true; 
+                        
+                        statCards.forEach(card => {
+                            const target = parseInt(card.getAttribute('data-target'));
+                            let count = 0;
+                            const duration = 2000; 
+                            const increment = target / (duration / 16); 
+                            
+                            const updateCount = () => {
+                                count += increment;
+                                if (count < target) {
+                                    card.innerText = Math.ceil(count);
+                                    requestAnimationFrame(updateCount);
+                                } else {
+                                    card.innerText = target + (target > 5 ? "+" : "");
+                                }
+                            };
+                            updateCount();
+                        });
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            const statsSection = document.querySelector('.stats');
+            if (statsSection) {
+                statsObserver.observe(statsSection);
+            }
+        });
+
+        // Fallback Loader Removal
+        setTimeout(removeLoader, 2500);
+    </script>
 
 </body>
 </html>
