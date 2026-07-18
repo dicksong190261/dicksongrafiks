@@ -353,6 +353,112 @@
             transform: scale(1.03);
         }
 
+        /* --- VIDEO CSS --- */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .video-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            border-radius: 15px;
+            transition: transform 0.4s ease;
+        }
+
+        .video-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .video-thumb-link {
+            display: block;
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            border-radius: 10px;
+            overflow: hidden;
+            background: #111;
+            text-decoration: none;
+        }
+
+        .video-thumb-link.short {
+            padding-bottom: 177.77%; /* 9:16 Aspect Ratio */
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .video-thumb-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .play-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .play-btn {
+            width: 65px; height: 65px;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+        }
+
+        .play-btn svg {
+            width: 30px; height: 30px;
+            margin-left: 4px; /* Visually center the play triangle */
+        }
+
+        .watch-label {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fff;
+            background: rgba(0,0,0,0.6);
+            padding: 6px 14px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+
+        /* Hover animations for video thumbnails */
+        .video-card:hover .video-thumb-img {
+            transform: scale(1.08);
+        }
+
+        .video-card:hover .play-overlay {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .video-card:hover .play-btn {
+            transform: scale(1.15);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.6);
+        }
+
         .links {
             display: flex;
             flex-wrap: wrap;
@@ -372,6 +478,89 @@
         .links a:hover {
             color: var(--accent-3);
             border-color: var(--accent-3);
+        }
+
+        /* --- FOUNDER SECTION --- */
+        .founder-container {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+        }
+
+        .founder-img-wrapper {
+            flex: 0 0 35%;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .founder-img-wrapper img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .founder-img-wrapper:hover img {
+            transform: scale(1.05);
+        }
+
+        .founder-info {
+            flex: 1;
+        }
+
+        .founder-name {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+
+        .founder-role {
+            font-size: 1.1rem;
+            color: var(--accent-3);
+            font-weight: 600;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .founder-bio p {
+            color: #a0a0b0;
+            line-height: 1.7;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .founder-bio p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* --- FEATURE SHOWCASE (Reusing founder layout) --- */
+        .feature-reverse {
+            flex-direction: row-reverse;
+        }
+        
+        .logo-img-wrapper {
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            background: rgba(255,255,255,0.02);
+        }
+
+        .logo-img-wrapper img {
+            max-height: 350px;
+            width: auto;
+            object-fit: contain;
+            padding: 20px;
         }
 
         /* --- UTILITIES & ANIMATIONS --- */
@@ -446,9 +635,28 @@
             }
             
             /* Force grids into single columns to prevent horizontal scroll */
-            .preview-grid, .services, .countries {
-                grid-template-columns: 1fr;
+            .preview-grid, .services, .countries, .video-grid {
+                grid-template-columns: 1fr !important;
                 gap: 15px;
+            }
+
+            /* Founder Section Mobile */
+            .founder-container {
+                flex-direction: column;
+                padding: 25px;
+                text-align: center;
+            }
+            .feature-reverse {
+                flex-direction: column; /* Force stack on mobile */
+            }
+            .founder-img-wrapper {
+                flex: 0 0 100%;
+                width: 100%;
+                max-width: 300px; /* Keep image from getting too massive */
+                margin: 0 auto;
+            }
+            .founder-name {
+                font-size: 2rem;
             }
 
             /* Adjust padding for smaller screens */
@@ -578,6 +786,88 @@
                     <p style="color: #bbb; margin-top: 10px; line-height: 1.5;">High-performing visuals designed to grab attention instantly and increase engagement.</p>
                 </div>
             </div>
+
+            <div class="project fade">
+                <img src="https://i.ibb.co/Gv4FqWhP/pixelup-1783682147666.jpg" alt="Birthday Flyer" onerror="this.style.display='none'">
+                <div>
+                    <h3>Celebration Visuals</h3>
+                    <p style="color: #bbb; margin-top: 10px; line-height: 1.5;">Elegant, vibrant, and eye-catching designs tailored to make your special day stand out.</p>
+                </div>
+            </div>
+
+            <div class="project fade">
+                <img src="https://i.ibb.co/vxjYF4xp/Bilt-Logo.png" alt="Brand Logo Design" style="object-fit: contain; padding: 15px; background: rgba(255,255,255,0.02);" onerror="this.style.display='none'">
+                <div>
+                    <h3>Brand Identity Logo</h3>
+                    <p style="color: #bbb; margin-top: 10px; line-height: 1.5;">Clean, memorable, and impactful logos engineered to give your brand a professional edge.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VIDEO WORKS -->
+    <section id="videos">
+        <h2 class="section-title fade">Motion & Video Edits</h2>
+        <p class="section-text fade">
+            High-energy video editing, motion graphics, and engaging short-form content designed to capture attention instantly.
+        </p>
+
+        <!-- Widescreen Videos -->
+        <div class="video-grid fade">
+            <div class="video-card">
+                <a href="https://youtu.be/H8VCSFxVce4" target="_blank" rel="noopener noreferrer" class="video-thumb-link">
+                    <img src="https://img.youtube.com/vi/H8VCSFxVce4/maxresdefault.jpg" onerror="this.onerror=null; this.src='https://img.youtube.com/vi/H8VCSFxVce4/hqdefault.jpg';" alt="Promotional Video Thumbnail" class="video-thumb-img">
+                    <div class="play-overlay">
+                        <div class="play-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        </div>
+                        <span class="watch-label">Watch on YouTube</span>
+                    </div>
+                </a>
+                <h3 style="margin-top: 20px; font-size: 1.2rem;">Promotional Video</h3>
+            </div>
+            
+            <div class="video-card">
+                <a href="https://youtu.be/5eS61a1UlV0" target="_blank" rel="noopener noreferrer" class="video-thumb-link">
+                    <img src="https://img.youtube.com/vi/5eS61a1UlV0/maxresdefault.jpg" onerror="this.onerror=null; this.src='https://img.youtube.com/vi/5eS61a1UlV0/hqdefault.jpg';" alt="Motion Graphics Edit Thumbnail" class="video-thumb-img">
+                    <div class="play-overlay">
+                        <div class="play-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        </div>
+                        <span class="watch-label">Watch on YouTube</span>
+                    </div>
+                </a>
+                <h3 style="margin-top: 20px; font-size: 1.2rem;">Motion Graphics Edit</h3>
+            </div>
+        </div>
+
+        <!-- Vertical Videos / Shorts -->
+        <div class="video-grid fade" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+            <div class="video-card">
+                <a href="https://youtube.com/shorts/r-bnK_Sw5VY" target="_blank" rel="noopener noreferrer" class="video-thumb-link short">
+                    <img src="https://img.youtube.com/vi/r-bnK_Sw5VY/maxresdefault.jpg" onerror="this.onerror=null; this.src='https://img.youtube.com/vi/r-bnK_Sw5VY/hqdefault.jpg';" alt="Short Form Edit Thumbnail" class="video-thumb-img">
+                    <div class="play-overlay">
+                        <div class="play-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        </div>
+                        <span class="watch-label">Watch on YouTube</span>
+                    </div>
+                </a>
+                <h3 style="margin-top: 20px; font-size: 1.2rem; text-align: center;">Short Form Edit</h3>
+            </div>
+
+            <div class="video-card">
+                <a href="https://youtube.com/shorts/XZSpHhO7jI4" target="_blank" rel="noopener noreferrer" class="video-thumb-link short">
+                    <img src="https://img.youtube.com/vi/XZSpHhO7jI4/maxresdefault.jpg" onerror="this.onerror=null; this.src='https://img.youtube.com/vi/XZSpHhO7jI4/hqdefault.jpg';" alt="Social Media Reel Thumbnail" class="video-thumb-img">
+                    <div class="play-overlay">
+                        <div class="play-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        </div>
+                        <span class="watch-label">Watch on YouTube</span>
+                    </div>
+                </a>
+                <h3 style="margin-top: 20px; font-size: 1.2rem; text-align: center;">Social Media Reel</h3>
+            </div>
         </div>
     </section>
 
@@ -588,17 +878,38 @@
             Explore more premium visuals and creative edits from our portfolio collection.
         </p>
 
-        <div class="preview-grid fade">
-            <img src="images/Edit 5.jpg" alt="Creative Design 1" onerror="this.style.display='none'">
-            <img src="images/Edit 10.jpg" alt="Creative Design 2" onerror="this.style.display='none'">
-            <img src="images/Edit 15.jpg" alt="Creative Design 3" onerror="this.style.display='none'">
-            <img src="images/Edit 42.jpg" alt="Creative Design 4" onerror="this.style.display='none'">
-        </div>
+        <div class="preview-grid">
+            <div class="project fade">
+                <img src="https://i.ibb.co/qL4DgxZr/Air-Brush-20260521202318.jpg" alt="High-End Retouching" onerror="this.style.display='none'">
+                <div>
+                    <h3>High-End Retouching</h3>
+                    <p style="color: #bbb; margin-top: 10px; line-height: 1.5;">Professional skin retouching and detail enhancement for a flawless, premium finish.</p>
+                </div>
+            </div>
 
-        <div style="text-align:center; margin-top: 40px;">
-            <button class="btn" onclick="window.open('https://www.behance.net/goodnessdickson1')">
-                View Full Portfolio
-            </button>
+            <div class="project fade">
+                <img src="https://i.ibb.co/8WkFFHB/pixelup-1784054423126.jpg" alt="Creative Manipulation" onerror="this.style.display='none'">
+                <div>
+                    <h3>Creative Manipulation</h3>
+                    <p style="color: #bbb; margin-top: 10px; line-height: 1.5;">Advanced photo manipulation blending elements seamlessly into a cohesive, striking visual.</p>
+                </div>
+            </div>
+
+            <div class="project fade">
+                <img src="https://i.ibb.co/xSRzmDb0/pixelup-1784300191784.jpg" alt="Color Enhancement" onerror="this.style.display='none'">
+                <div>
+                    <h3>Color Enhancement</h3>
+                    <p style="color: #bbb; margin-top: 10px; line-height: 1.5;">Vibrant color correction and grading designed to bring dull images to life with rich contrast.</p>
+                </div>
+            </div>
+
+            <div class="project fade">
+                <img src="https://i.ibb.co/JR6yYrpS/20260326-044755.jpg" alt="Editorial Styling" onerror="this.style.display='none'">
+                <div>
+                    <h3>Editorial Styling</h3>
+                    <p style="color: #bbb; margin-top: 10px; line-height: 1.5;">Dramatic lighting adjustments and crisp detailing tailored for high-end editorial aesthetics.</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -618,6 +929,31 @@
             <div class="service fade">Motion Graphics</div>
             <div class="service fade">Video Editing</div>
             <div class="service fade">Web Visual Design</div>
+        </div>
+    </section>
+
+    <!-- FOUNDER SECTION -->
+    <section id="founder">
+        <h2 class="section-title fade">Meet the Creative Mind</h2>
+        
+        <div class="founder-container fade">
+            <div class="founder-img-wrapper">
+                <img src="https://i.ibb.co/VcXYRJLC/Me.jpg" alt="Goodness N. Dickson" onerror="this.src='https://placehold.co/400x500/1e1e1e/8b5cf6?text=Goodness+Dickson'">
+            </div>
+            
+            <div class="founder-info">
+                <h3 class="founder-name">Goodness N. Dickson</h3>
+                <p class="founder-role">Founder & Lead Designer</p>
+                
+                <div class="founder-bio">
+                    <p>
+                        With a profound passion for visual storytelling, Goodness founded DicksonGrafiks to bridge the gap between brilliant ideas and impactful designs. Every project is approached with a commitment to excellence, ensuring that brands not only look premium but also communicate their message powerfully.
+                    </p>
+                    <p>
+                        Whether it's crafting a cohesive brand identity from scratch or engineering high-converting marketing visuals, Goodness brings years of expertise, a keen eye for aesthetic detail, and a relentless drive to help clients stand out in competitive digital landscapes.
+                    </p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -662,9 +998,7 @@
         </button>
 
         <div class="links fade" style="margin-top: 60px;">
-            <a href="https://www.behance.net/goodnessdickson1" target="_blank">Behance</a>
             <a href="https://linkedin.com/in/goodness-dickson-ba1b333a8" target="_blank">LinkedIn</a>
-            <a href="https://youtube.com/@dicksongrafiks" target="_blank">YouTube</a>
             <a href="https://x.com/DicksonGrafiks" target="_blank">X</a>
             <a href="https://facebook.com/DicksonGrafiks" target="_blank">Facebook</a>
         </div>
