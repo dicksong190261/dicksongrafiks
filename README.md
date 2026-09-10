@@ -1,54 +1,61 @@
-# DicksonGrafiks Portfolio
+# DicksonGrafiks — Portfolio Site
 
-A single-page portfolio site built with React, TypeScript, Vite, and Tailwind CSS.
+A responsive single-page portfolio for DicksonGrafiks, built with React + Vite. Includes a 3D hero scene and interactive globe (Three.js, loaded via CDN at runtime) and Tailwind CSS (loaded via CDN at runtime).
 
 ## Project structure
 
 ```
-├── index.html              # HTML entry point
-├── netlify.toml             # Netlify build & redirect config
+.
+├── index.html            # HTML entry point
+├── netlify.toml           # Netlify build/deploy config
 ├── package.json
-├── postcss.config.js
-├── tailwind.config.js
-├── tsconfig.json
-├── tsconfig.node.json
 ├── vite.config.ts
+├── tsconfig.json
 ├── public/
 │   └── favicon.svg
 └── src/
-    ├── App.tsx              # Main portfolio component (all sections)
-    ├── index.css            # Tailwind directives
-    └── main.tsx             # React root render
+    ├── main.tsx           # React root/mount
+    ├── App.tsx            # Full portfolio page (all sections/components)
+    └── vite-env.d.ts
 ```
 
 ## Run locally
+
+Requires Node.js 18+ (Node 20 recommended).
 
 ```bash
 npm install
 npm run dev
 ```
 
-This starts a dev server (default: http://localhost:5173).
+Then open the URL Vite prints (usually http://localhost:5173).
 
 ## Build for production
 
 ```bash
+npm install
 npm run build
 ```
 
-Output goes to the `dist/` folder.
+This outputs a static site to the `dist/` folder.
+
+To preview the production build locally:
+
+```bash
+npm run preview
+```
 
 ## Deploy to Netlify
 
-### Option A — Drag & drop (fastest)
+### Option A — Drag and drop
 1. Run `npm install && npm run build` locally.
-2. Go to https://app.netlify.com/drop
+2. Go to [app.netlify.com/drop](https://app.netlify.com/drop).
 3. Drag the generated `dist/` folder onto the page.
 
-### Option B — Connect a Git repo (recommended for updates)
+### Option B — Connect a Git repository (recommended)
 1. Push this project to a GitHub/GitLab/Bitbucket repo.
-2. In Netlify: **Add new site → Import an existing project**, select the repo.
-3. Netlify will auto-detect the settings from `netlify.toml`:
+2. In Netlify, click **Add new site → Import an existing project**.
+3. Select your repo. Netlify will read `netlify.toml` automatically and use:
    - Build command: `npm run build`
    - Publish directory: `dist`
 4. Click **Deploy site**.
@@ -63,7 +70,7 @@ netlify deploy --prod --dir=dist
 
 ## Notes
 
-- All images and video thumbnails are loaded from external URLs (ibb.co, Netlify-hosted assets, YouTube), so no local image assets are required.
-- Three.js is lazy-loaded from a CDN (`cdnjs.cloudflare.com`) at runtime for the hero background and globe visualizations — no npm dependency needed for it.
-- Icons come from `lucide-react`.
-- Tailwind CSS is compiled at build time via PostCSS (no CDN script needed in production).
+- **Tailwind CSS** and **Three.js** are loaded from CDNs at runtime by the app itself (see the top of `src/App.tsx` and the `useThreeLoader` hook) — no local Tailwind/Three.js build setup is required.
+- **Images** (project thumbnails, photo-edit samples, founder photo) are hosted externally on ibb.co and loaded directly by URL — no local image assets needed.
+- **Icons** come from the `lucide-react` npm package, listed as a dependency in `package.json`.
+- The WhatsApp contact button and social links point to real external URLs already embedded in the component — update them in `src/App.tsx` if they need to change.

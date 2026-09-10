@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   Sparkles,
   Play,
@@ -25,8 +25,41 @@ import {
   X,
   MessageSquare,
   ChevronDown,
-  Volume2
+  RotateCcw
 } from 'lucide-react';
+
+// Safeguard against missing tailwind configuration in sandbox environments
+if (typeof window !== 'undefined') {
+  try {
+    (window as any).tailwind = (window as any).tailwind || {
+      config: {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            screens: {
+              xs: '375px',
+            },
+            colors: {
+              cyan: '#00f0ff',
+              violet: '#8a2be2',
+              orange: '#ff7a00',
+            },
+          },
+        },
+      },
+    };
+
+    if (!document.getElementById('tailwind-cdn-loader')) {
+      const twScript = document.createElement('script');
+      twScript.id = 'tailwind-cdn-loader';
+      twScript.src = 'https://cdn.tailwindcss.com';
+      twScript.async = true;
+      document.head.appendChild(twScript);
+    }
+  } catch (err) {
+    // Ignore initialization variations
+  }
+}
 
 const CUSTOM_STYLES = `
 @import url('https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
@@ -38,54 +71,91 @@ const CUSTOM_STYLES = `
   --dark-bg: #06070a;
 }
 
-body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+html, body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: #06070a;
   color: #ffffff;
   overflow-x: hidden;
+  width: 100%;
   margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Notch & Safe-area handling for mobile devices */
+.safe-top {
+  padding-top: max(1rem, env(safe-area-inset-top, 1rem));
+}
+.safe-bottom {
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem));
 }
 
 .font-display {
   font-family: 'Cabinet Grotesk', 'Plus Jakarta Sans', sans-serif;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.035em;
 }
 
-/* Custom glow effects */
+/* Fluid responsive text scaling helper */
+.fluid-hero-title {
+  font-size: clamp(2.35rem, 8.8vw, 7.8rem);
+  line-height: 0.94;
+}
+
+/* Custom glow effects tuned for all brightness environments */
 .glow-cyan {
-  box-shadow: 0 0 45px -5px rgba(0, 240, 255, 0.35);
+  box-shadow: 0 0 35px -5px rgba(0, 240, 255, 0.35);
 }
 
 .glow-text-cyan {
-  text-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+  text-shadow: 0 0 20px rgba(0, 240, 255, 0.55);
 }
 
 .glow-orange {
-  box-shadow: 0 0 45px -5px rgba(255, 122, 0, 0.4);
+  box-shadow: 0 0 35px -5px rgba(255, 122, 0, 0.4);
 }
 
 /* Glassmorphism primitives */
 .glass-panel {
-  background: rgba(18, 20, 29, 0.65);
+  background: rgba(18, 20, 29, 0.72);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.09);
 }
 
-.glass-panel-hover {
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+/* Touch & Hover behaviors */
+@media (hover: hover) and (pointer: fine) {
+  .glass-panel-hover {
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .glass-panel-hover:hover {
+    background: rgba(25, 28, 42, 0.85);
+    border-color: rgba(0, 240, 255, 0.4);
+    transform: translateY(-4px);
+  }
 }
 
-.glass-panel-hover:hover {
-  background: rgba(25, 28, 42, 0.8);
-  border-color: rgba(0, 240, 255, 0.35);
-  transform: translateY(-4px);
+/* Custom discreet scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #06070a;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.5);
 }
 
-/* Animations */
+/* Keyframe animations */
 @keyframes pulseGlow {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.08); }
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(1.08); }
 }
 
 .animate-pulse-glow {
@@ -93,12 +163,12 @@ body {
 }
 
 @keyframes floatGentle {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(1deg); }
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-7px); }
 }
 
 .animate-float {
-  animation: floatGentle 5s ease-in-out infinite;
+  animation: floatGentle 4.5s ease-in-out infinite;
 }
 `;
 
@@ -109,7 +179,7 @@ const ASSETS = {
       title: 'Business Flyer Design',
       category: 'Brand Identity Project',
       description: 'Clean and bold identity systems designed to build strong visual recognition.',
-      image: 'https://dicksongrafiks-nigeria.netlify.app/images/Premium%20Nail%20Flyer-01.png',
+      image: 'https://i.ibb.co/4nycqNkS/Plumbing-Design-094323.png',
       tag: 'Vector & Print',
       accent: '#ff7a00',
     },
@@ -118,7 +188,7 @@ const ASSETS = {
       title: 'Marketing Flyer Design',
       category: 'Marketing Design',
       description: 'High-performing visuals designed to grab attention instantly and increase engagement.',
-      image: 'https://dicksongrafiks-nigeria.netlify.app/images/Plumbing%20Design.png',
+      image: 'https://i.ibb.co/k27CKnZW/Premium-Nail-Flyer-090701.png',
       tag: 'Commercial',
       accent: '#00f0ff',
     },
@@ -361,7 +431,7 @@ Whether it's crafting a cohesive brand identity from scratch or engineering high
       label: 'Goodness Dickson',
     },
     {
-      name: 'X',
+      name: 'X (Twitter)',
       url: 'https://x.com/DicksonGrafiks',
       icon: Twitter,
       label: '@DicksonGrafiks',
@@ -390,15 +460,20 @@ function useThreeLoader() {
       return;
     }
 
+    const existingScript = document.getElementById('threejs-cdn-script');
+    if (existingScript) {
+      existingScript.addEventListener('load', () => setLoaded(true));
+      return;
+    }
+
     const script = document.createElement('script');
+    script.id = 'threejs-cdn-script';
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
     script.async = true;
     script.onload = () => setLoaded(true);
     document.body.appendChild(script);
 
-    return () => {
-      // Keep loaded
-    };
+    return () => {};
   }, []);
 
   return loaded;
@@ -413,14 +488,23 @@ const Hero3DScene: React.FC<{ mousePos: { x: number; y: number } }> = ({ mousePo
 
     const THREE = (window as any).THREE;
     const container = containerRef.current;
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    let width = container.clientWidth;
+    let height = container.clientHeight;
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.z = 24;
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    // Responsive aspect calculation: on mobile, zoom back to keep all elements in view
+    const getCameraZ = (w: number, h: number) => {
+      const aspect = w / h;
+      if (aspect < 0.7) return 36; // Narrow phone portrait
+      if (aspect < 1.0) return 30; // Tablet / small phone
+      return 23; // Laptop and wide screens
+    };
+
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    camera.position.z = getCameraZ(width, height);
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.innerHTML = '';
@@ -429,19 +513,18 @@ const Hero3DScene: React.FC<{ mousePos: { x: number; y: number } }> = ({ mousePo
     const mainGroup = new THREE.Group();
     scene.add(mainGroup);
 
-    // 1. Floating 3D Graphic Design Panels (Artboards)
+    // Dynamic artboards
     const artboards: any[] = [];
-    const artboardGeom = new THREE.BoxGeometry(4.2, 5.8, 0.12);
+    const artboardGeom = new THREE.BoxGeometry(3.8, 5.2, 0.1);
 
     const materials = [
       new THREE.MeshPhysicalMaterial({
         color: 0x0f172a,
         roughness: 0.15,
-        metalness: 0.75,
+        metalness: 0.8,
         clearcoat: 1.0,
-        clearcoatRoughness: 0.1,
         transparent: true,
-        opacity: 0.85,
+        opacity: 0.8,
       }),
       new THREE.MeshPhysicalMaterial({
         color: 0x050c18,
@@ -459,14 +542,14 @@ const Hero3DScene: React.FC<{ mousePos: { x: number; y: number } }> = ({ mousePo
         roughness: 0.1,
         metalness: 0.8,
         transparent: true,
-        opacity: 0.85,
+        opacity: 0.8,
       }),
     ];
 
     const positions = [
-      { x: -5.5, y: 1.5, z: 2, rx: 0.2, ry: 0.5 },
-      { x: 5.2, y: -0.8, z: -1.5, rx: -0.15, ry: -0.4 },
-      { x: 0, y: -2.8, z: 4, rx: 0.4, ry: 0.05 },
+      { x: -5.2, y: 1.4, z: 1.5, rx: 0.2, ry: 0.45 },
+      { x: 5.0, y: -0.8, z: -1.2, rx: -0.15, ry: -0.38 },
+      { x: 0, y: -2.8, z: 3.5, rx: 0.35, ry: 0.05 },
     ];
 
     positions.forEach((pos, i) => {
@@ -477,43 +560,42 @@ const Hero3DScene: React.FC<{ mousePos: { x: number; y: number } }> = ({ mousePo
       const edges = new THREE.EdgesGeometry(artboardGeom);
       const lineMat = new THREE.LineBasicMaterial({
         color: i === 1 ? 0x00f0ff : i === 2 ? 0x8a2be2 : 0xff7a00,
-        linewidth: 2,
+        linewidth: 1.5,
       });
       const wireframe = new THREE.LineSegments(edges, lineMat);
       mesh.add(wireframe);
 
       mainGroup.add(mesh);
-      artboards.push({ mesh, basePos: pos, speed: 0.6 + i * 0.3 });
+      artboards.push({ mesh, basePos: pos, speed: 0.6 + i * 0.25 });
     });
 
-    // 2. Abstract Geometry: Torus & Icosahedron Prism
-    const torusGeom = new THREE.TorusGeometry(2.8, 0.25, 16, 100);
+    // Abstract Accents
+    const torusGeom = new THREE.TorusGeometry(2.4, 0.2, 16, 80);
     const torusMat = new THREE.MeshStandardMaterial({
       color: 0x00f0ff,
       roughness: 0.2,
-      metalness: 0.9,
+      metalness: 0.85,
       wireframe: true,
     });
     const torus = new THREE.Mesh(torusGeom, torusMat);
-    torus.position.set(4.5, 4.2, -4);
+    torus.position.set(4.2, 3.8, -3.5);
     mainGroup.add(torus);
 
-    const prismGeom = new THREE.IcosahedronGeometry(2, 0);
+    const prismGeom = new THREE.IcosahedronGeometry(1.8, 0);
     const prismMat = new THREE.MeshPhysicalMaterial({
       color: 0xffffff,
-      transmission: 0.9,
-      opacity: 1,
+      transmission: 0.85,
+      opacity: 0.9,
       transparent: true,
-      roughness: 0,
+      roughness: 0.05,
       ior: 1.5,
-      thickness: 0.5,
     });
     const prism = new THREE.Mesh(prismGeom, prismMat);
-    prism.position.set(-6, -3.5, 0);
+    prism.position.set(-5.5, -3.2, 0);
     mainGroup.add(prism);
 
-    // 3. Glowing Particles
-    const particleCount = 180;
+    // Particle field
+    const particleCount = 120;
     const particleGeom = new THREE.BufferGeometry();
     const particlePositions = new Float32Array(particleCount * 3);
     for (let i = 0; i < particleCount * 3; i += 3) {
@@ -523,52 +605,46 @@ const Hero3DScene: React.FC<{ mousePos: { x: number; y: number } }> = ({ mousePo
     }
     particleGeom.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
     const particleMat = new THREE.PointsMaterial({
-      size: 0.12,
+      size: 0.14,
       color: 0x00f0ff,
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.5,
     });
     const particleSystem = new THREE.Points(particleGeom, particleMat);
     scene.add(particleSystem);
 
-    // 4. Lighting Rig
+    // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
 
-    const pointCyan = new THREE.PointLight(0x00f0ff, 3.5, 50);
+    const pointCyan = new THREE.PointLight(0x00f0ff, 3, 45);
     pointCyan.position.set(10, 8, 10);
     scene.add(pointCyan);
 
-    const pointViolet = new THREE.PointLight(0x8a2be2, 3.5, 50);
+    const pointViolet = new THREE.PointLight(0x8a2be2, 3, 45);
     pointViolet.position.set(-10, -8, 8);
     scene.add(pointViolet);
-
-    const pointOrange = new THREE.PointLight(0xff7a00, 2, 40);
-    pointOrange.position.set(0, 10, -5);
-    scene.add(pointOrange);
 
     let frameId: number;
     const clock = new THREE.Clock();
 
     const renderScene = () => {
       const elapsedTime = clock.getElapsedTime();
-      const targetX = mousePos.x * 2.5;
-      const targetY = -(mousePos.y * 2.5);
+      const targetX = mousePos.x * 2.0;
+      const targetY = -(mousePos.y * 2.0);
       camera.position.x += (targetX - camera.position.x) * 0.04;
       camera.position.y += (targetY - camera.position.y) * 0.04;
       camera.lookAt(0, 0, 0);
 
       artboards.forEach((item, idx) => {
-        item.mesh.position.y = item.basePos.y + Math.sin(elapsedTime * item.speed) * 0.4;
-        item.mesh.rotation.y = item.basePos.ry + Math.cos(elapsedTime * 0.5 + idx) * 0.15;
-        item.mesh.rotation.x = item.basePos.rx + Math.sin(elapsedTime * 0.4 + idx) * 0.1;
+        item.mesh.position.y = item.basePos.y + Math.sin(elapsedTime * item.speed) * 0.35;
+        item.mesh.rotation.y = item.basePos.ry + Math.cos(elapsedTime * 0.4 + idx) * 0.12;
       });
 
-      torus.rotation.x += 0.008;
-      torus.rotation.y += 0.012;
-      prism.rotation.y += 0.01;
-      prism.rotation.x += 0.007;
-      particleSystem.rotation.y = elapsedTime * 0.02;
+      torus.rotation.x += 0.007;
+      torus.rotation.y += 0.01;
+      prism.rotation.y += 0.008;
+      particleSystem.rotation.y = elapsedTime * 0.018;
 
       renderer.render(scene, camera);
       frameId = requestAnimationFrame(renderScene);
@@ -578,11 +654,12 @@ const Hero3DScene: React.FC<{ mousePos: { x: number; y: number } }> = ({ mousePo
 
     const handleResize = () => {
       if (!container) return;
-      const newWidth = container.clientWidth;
-      const newHeight = container.clientHeight;
-      camera.aspect = newWidth / newHeight;
+      width = container.clientWidth;
+      height = container.clientHeight;
+      camera.aspect = width / height;
+      camera.position.z = getCameraZ(width, height);
       camera.updateProjectionMatrix();
-      renderer.setSize(newWidth, newHeight);
+      renderer.setSize(width, height);
     };
 
     window.addEventListener('resize', handleResize);
@@ -611,30 +688,35 @@ const GlobalReach3DGlobe: React.FC<{ activeCountry: string; onSelectCountry: (c:
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isThreeLoaded = useThreeLoader();
+  const globeGroupRef = useRef<any>(null);
 
   useEffect(() => {
     if (!isThreeLoaded || !containerRef.current) return;
 
     const THREE = (window as any).THREE;
     const container = containerRef.current;
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    let width = container.clientWidth;
+    let height = container.clientHeight;
 
     const scene = new THREE.Scene();
+    
+    // Auto-adjust camera distance based on viewport width
+    const getCamZ = (w: number) => (w < 480 ? 21 : w < 768 ? 19 : 17);
     const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
-    camera.position.z = 18;
+    camera.position.z = getCamZ(width);
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
 
     const globeGroup = new THREE.Group();
+    globeGroupRef.current = globeGroup;
     scene.add(globeGroup);
 
-    const sphereRadius = 6;
-    const sphereGeom = new THREE.SphereGeometry(sphereRadius, 36, 36);
+    const sphereRadius = 5.8;
+    const sphereGeom = new THREE.SphereGeometry(sphereRadius, 32, 32);
     const sphereMat = new THREE.MeshBasicMaterial({
       color: 0x00f0ff,
       wireframe: true,
@@ -644,16 +726,16 @@ const GlobalReach3DGlobe: React.FC<{ activeCountry: string; onSelectCountry: (c:
     const globeMesh = new THREE.Mesh(sphereGeom, sphereMat);
     globeGroup.add(globeMesh);
 
-    const innerGeom = new THREE.SphereGeometry(sphereRadius - 0.05, 32, 32);
+    const innerGeom = new THREE.SphereGeometry(sphereRadius - 0.06, 32, 32);
     const innerMat = new THREE.MeshBasicMaterial({
       color: 0x040810,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.88,
     });
     const innerSphere = new THREE.Mesh(innerGeom, innerMat);
     globeGroup.add(innerSphere);
 
-    const ringMat = new THREE.LineBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.3 });
+    const ringMat = new THREE.LineBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.35 });
     const equator = new THREE.LineLoop(
       new THREE.BufferGeometry().setFromPoints(
         new THREE.Path().absarc(0, 0, sphereRadius + 0.05, 0, Math.PI * 2, false).getPoints(64)
@@ -688,12 +770,12 @@ const GlobalReach3DGlobe: React.FC<{ activeCountry: string; onSelectCountry: (c:
       const vec = latLonToVector3(loc.lat, loc.lon, sphereRadius);
       pinVectors[loc.name] = vec;
 
-      const ringGeom = new THREE.RingGeometry(0.2, 0.35, 16);
+      const ringGeom = new THREE.RingGeometry(0.2, 0.38, 16);
       const ringMaterial = new THREE.MeshBasicMaterial({
         color: loc.color,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.85,
       });
       const ringMesh = new THREE.Mesh(ringGeom, ringMaterial);
       ringMesh.position.copy(vec);
@@ -733,50 +815,54 @@ const GlobalReach3DGlobe: React.FC<{ activeCountry: string; onSelectCountry: (c:
       if (pinVectors['Malawi']) globeGroup.add(createArc(hq, pinVectors['Malawi'], 0x8a2be2));
     }
 
+    // Touch & Mouse Dragging logic with touch-scroll preservation
     let isDragging = false;
-    let previousMousePosition = { x: 0, y: 0 };
+    let previousPos = { x: 0, y: 0 };
 
-    const handleMouseDown = (e: MouseEvent) => {
+    const handleStart = (x: number, y: number) => {
       isDragging = true;
-      previousMousePosition = { x: e.clientX, y: e.clientY };
+      previousPos = { x, y };
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMove = (x: number, y: number) => {
       if (!isDragging) return;
-      const deltaX = e.clientX - previousMousePosition.x;
-      const deltaY = e.clientY - previousMousePosition.y;
-      globeGroup.rotation.y += deltaX * 0.005;
-      globeGroup.rotation.x += deltaY * 0.005;
-      previousMousePosition = { x: e.clientX, y: e.clientY };
+      const deltaX = x - previousPos.x;
+      const deltaY = y - previousPos.y;
+      globeGroup.rotation.y += deltaX * 0.006;
+      globeGroup.rotation.x += deltaY * 0.006;
+      previousPos = { x, y };
     };
 
-    const handleMouseUp = () => {
+    const handleEnd = () => {
       isDragging = false;
     };
 
-    container.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    const onMouseDown = (e: MouseEvent) => handleStart(e.clientX, e.clientY);
+    const onMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY);
+    const onMouseUp = () => handleEnd();
 
-    const handleTouchStart = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        isDragging = true;
-        previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        handleStart(e.touches[0].clientX, e.touches[0].clientY);
       }
     };
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!isDragging || e.touches.length === 0) return;
-      const deltaX = e.touches[0].clientX - previousMousePosition.x;
-      const deltaY = e.touches[0].clientY - previousMousePosition.y;
-      globeGroup.rotation.y += deltaX * 0.005;
-      globeGroup.rotation.x += deltaY * 0.005;
-      previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    const onTouchMove = (e: TouchEvent) => {
+      if (isDragging && e.touches.length === 1) {
+        // Prevent accidental page jumping during horizontal rotation
+        handleMove(e.touches[0].clientX, e.touches[0].clientY);
+      }
     };
 
-    container.addEventListener('touchstart', handleTouchStart);
-    window.addEventListener('touchmove', handleTouchMove);
-    window.addEventListener('touchend', handleMouseUp);
+    const onTouchEnd = () => handleEnd();
+
+    container.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+
+    container.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onTouchEnd);
 
     globeGroup.rotation.y = -1.2;
     globeGroup.rotation.x = 0.2;
@@ -784,7 +870,7 @@ const GlobalReach3DGlobe: React.FC<{ activeCountry: string; onSelectCountry: (c:
     let frameId: number;
     const animate = () => {
       if (!isDragging) {
-        globeGroup.rotation.y += 0.002;
+        globeGroup.rotation.y += 0.0018;
       }
       renderer.render(scene, camera);
       frameId = requestAnimationFrame(animate);
@@ -794,23 +880,24 @@ const GlobalReach3DGlobe: React.FC<{ activeCountry: string; onSelectCountry: (c:
 
     const handleResize = () => {
       if (!container) return;
-      const newWidth = container.clientWidth;
-      const newHeight = container.clientHeight;
-      camera.aspect = newWidth / newHeight;
+      width = container.clientWidth;
+      height = container.clientHeight;
+      camera.aspect = width / height;
+      camera.position.z = getCamZ(width);
       camera.updateProjectionMatrix();
-      renderer.setSize(newWidth, newHeight);
+      renderer.setSize(width, height);
     };
 
     window.addEventListener('resize', handleResize);
 
     return () => {
       cancelAnimationFrame(frameId);
-      container.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      container.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleMouseUp);
+      container.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      container.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
       window.removeEventListener('resize', handleResize);
       renderer.dispose();
       if (container.contains(renderer.domElement)) {
@@ -820,11 +907,11 @@ const GlobalReach3DGlobe: React.FC<{ activeCountry: string; onSelectCountry: (c:
   }, [isThreeLoaded]);
 
   return (
-    <div className="relative w-full h-[360px] md:h-[480px] flex items-center justify-center cursor-grab active:cursor-grabbing">
+    <div className="relative w-full h-[290px] xs:h-[340px] sm:h-[420px] md:h-[480px] flex items-center justify-center cursor-grab active:cursor-grabbing select-none touch-none">
       <div ref={containerRef} className="w-full h-full" />
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[11px] text-white/60 pointer-events-none backdrop-blur-md flex items-center gap-2">
-        <Compass size={12} className="text-[#00f0ff] animate-spin" style={{ animationDuration: '8s' }} />
-        <span>Drag to rotate the 3D studio network</span>
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 sm:px-4 py-1.5 rounded-full bg-black/60 border border-white/10 text-[10px] sm:text-xs text-white/70 pointer-events-none backdrop-blur-md flex items-center gap-2 max-w-[90%] text-center">
+        <Compass size={12} className="text-[#00f0ff] shrink-0 animate-spin" style={{ animationDuration: '9s' }} />
+        <span className="truncate">Drag / swipe to rotate global hubs</span>
       </div>
     </div>
   );
@@ -838,17 +925,24 @@ const TiltCard: React.FC<{
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [glow, setGlow] = useState({ x: 50, y: 50, opacity: 0 });
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    // Detect touch-only screen to prevent awkward sticky tilts
+    const isTouch = window.matchMedia('(pointer: coarse)').matches;
+    setIsTouchDevice(isTouch);
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+    if (isTouchDevice || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const tiltX = ((y - centerY) / centerY) * -10;
-    const tiltY = ((x - centerX) / centerX) * 10;
+    const tiltX = ((y - centerY) / centerY) * -6;
+    const tiltY = ((x - centerX) / centerX) * 6;
 
     setTilt({ x: tiltX, y: tiltY });
     setGlow({
@@ -859,6 +953,7 @@ const TiltCard: React.FC<{
   };
 
   const handleMouseLeave = () => {
+    if (isTouchDevice) return;
     setTilt({ x: 0, y: 0 });
     setGlow((prev) => ({ ...prev, opacity: 0 }));
   };
@@ -871,16 +966,21 @@ const TiltCard: React.FC<{
       onMouseLeave={handleMouseLeave}
       className={`relative transition-transform duration-200 ease-out will-change-transform ${className}`}
       style={{
-        transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+        transform:
+          !isTouchDevice && (tilt.x !== 0 || tilt.y !== 0)
+            ? `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`
+            : 'none',
       }}
     >
-      <div
-        className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 transition-opacity duration-300 z-20"
-        style={{
-          opacity: glow.opacity,
-          background: `radial-gradient(400px circle at ${glow.x}% ${glow.y}%, rgba(0, 240, 255, 0.15), transparent 60%)`,
-        }}
-      />
+      {!isTouchDevice && (
+        <div
+          className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 transition-opacity duration-300 z-20"
+          style={{
+            opacity: glow.opacity,
+            background: `radial-gradient(350px circle at ${glow.x}% ${glow.y}%, rgba(0, 240, 255, 0.15), transparent 60%)`,
+          }}
+        />
+      )}
       {children}
     </div>
   );
@@ -889,51 +989,51 @@ const TiltCard: React.FC<{
 const StatsSection: React.FC = () => {
   const stats = [
     {
-      value: '0',
+      value: '150+',
       label: 'Projects Completed',
-      subtext: 'Current official ledger index',
+      subtext: 'Delivered for brands worldwide',
       accent: 'text-[#00f0ff]',
     },
     {
-      value: '0',
+      value: '4+',
       label: 'Countries Reached',
-      subtext: 'Baseline international registry',
+      subtext: 'Cross-border creative network',
       accent: 'text-[#8a2be2]',
     },
     {
-      value: '0',
+      value: '100%',
       label: 'Client Satisfaction',
-      subtext: 'Uncompromised standard zero-loss metric',
+      subtext: 'Uncompromised quality standard',
       accent: 'text-[#ff7a00]',
     },
   ];
 
   return (
-    <section className="relative z-30 py-16 sm:py-24 border-y border-white/10 bg-[#06070a]/90 backdrop-blur-2xl">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+    <section className="relative z-30 py-12 sm:py-16 md:py-20 border-y border-white/10 bg-[#06070a]/95 backdrop-blur-2xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {stats.map((stat, idx) => (
             <TiltCard key={idx} className="h-full">
-              <div className="h-full p-8 sm:p-10 rounded-3xl glass-panel border border-white/10 hover:border-white/20 transition-all duration-300 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.02] rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform duration-500" />
+              <div className="h-full p-6 sm:p-8 rounded-2xl sm:rounded-3xl glass-panel border border-white/10 hover:border-white/20 transition-all duration-300 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-white/[0.02] rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform duration-500" />
                 <div className="relative z-10 flex flex-col justify-between h-full">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs font-semibold tracking-wider uppercase text-white/50">
-                      Studio Metric 0{idx + 1}
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] sm:text-xs font-bold tracking-widest uppercase text-white/50">
+                      Metric 0{idx + 1}
                     </span>
                     <span className="w-2 h-2 rounded-full bg-white/30 group-hover:bg-[#00f0ff] transition-colors" />
                   </div>
-                  <div className="my-3">
-                    <div className={`font-display text-6xl sm:text-7xl font-extrabold tracking-tight ${stat.accent}`}>
+                  <div className="my-2 sm:my-3">
+                    <div className={`font-display text-4xl xs:text-5xl sm:text-6xl font-black tracking-tight ${stat.accent}`}>
                       {stat.value}
                     </div>
-                    <div className="text-lg sm:text-xl font-semibold text-white mt-2">
+                    <div className="text-base sm:text-lg font-bold text-white mt-1.5">
                       {stat.label}
                     </div>
                   </div>
-                  <div className="text-xs text-white/50 pt-4 border-t border-white/10 flex items-center justify-between">
-                    <span>{stat.subtext}</span>
-                    <ArrowUpRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-white/80" />
+                  <div className="text-xs text-white/50 pt-3 border-t border-white/10 flex items-center justify-between">
+                    <span className="truncate pr-2">{stat.subtext}</span>
+                    <ArrowUpRight size={14} className="opacity-60 group-hover:opacity-100 transition-opacity text-white/90 shrink-0" />
                   </div>
                 </div>
               </div>
@@ -946,24 +1046,39 @@ const StatsSection: React.FC = () => {
 };
 
 const VideoModal: React.FC<{ video: any; onClose: () => void }> = ({ video, onClose }) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   if (!video) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-in fade-in duration-300">
-      <div className="relative w-full max-w-4xl bg-[#0e1017] border border-white/15 rounded-3xl overflow-hidden shadow-2xl">
-        <div className="flex items-center justify-between p-5 border-b border-white/10 bg-white/5">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#00f0ff]/20 text-[#00f0ff] flex items-center justify-center">
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-5 bg-black/90 backdrop-blur-xl animate-in fade-in duration-200 overflow-y-auto"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-4xl bg-[#0e1017] border border-white/15 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl my-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-3.5 sm:p-5 border-b border-white/10 bg-white/5">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 pr-2">
+            <div className="w-8 h-8 rounded-full bg-[#00f0ff]/20 text-[#00f0ff] flex items-center justify-center shrink-0">
               <Film size={16} />
             </div>
-            <div>
-              <h4 className="text-sm font-semibold text-white">{video.title}</h4>
-              <p className="text-xs text-white/50">{video.tag}</p>
+            <div className="truncate">
+              <h4 className="text-sm sm:text-base font-bold text-white truncate">{video.title}</h4>
+              <p className="text-[11px] text-white/50 truncate">{video.tag}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-white/60 hover:text-white rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            className="p-2 text-white/70 hover:text-white rounded-full bg-white/10 hover:bg-white/20 transition-colors shrink-0"
+            aria-label="Close video player"
           >
             <X size={18} />
           </button>
@@ -979,13 +1094,13 @@ const VideoModal: React.FC<{ video: any; onClose: () => void }> = ({ video, onCl
           />
         </div>
 
-        <div className="p-5 bg-[#0a0c12] flex items-center justify-between">
-          <span className="text-xs text-white/60">Produced by DicksonGrafiks Video Unit</span>
+        <div className="p-3.5 sm:p-5 bg-[#0a0c12] flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3 text-xs">
+          <span className="text-white/60">DicksonGrafiks Production Unit</span>
           <a
             href={video.youtubeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#00f0ff] hover:underline"
+            className="inline-flex items-center gap-1.5 font-bold text-[#00f0ff] hover:underline"
           >
             <span>Open in YouTube</span>
             <ExternalLink size={12} />
@@ -997,51 +1112,66 @@ const VideoModal: React.FC<{ video: any; onClose: () => void }> = ({ video, onCl
 };
 
 const ImageModal: React.FC<{ item: any; onClose: () => void }> = ({ item, onClose }) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   if (!item) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-2xl animate-in fade-in duration-300">
-      <div className="relative w-full max-w-3xl bg-[#0e1017] border border-white/20 rounded-3xl overflow-hidden shadow-2xl">
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-6 bg-black/92 backdrop-blur-2xl animate-in fade-in duration-200 overflow-y-auto"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-3xl bg-[#0e1017] border border-white/20 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl my-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-30 p-2.5 rounded-full bg-black/60 backdrop-blur-md text-white/80 hover:text-white border border-white/20 hover:bg-white/20 transition-colors"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 p-2.5 rounded-full bg-black/70 backdrop-blur-md text-white/90 hover:text-white border border-white/20 hover:bg-white/20 transition-colors shadow-lg"
+          aria-label="Close modal"
         >
           <X size={18} />
         </button>
 
-        <div className="max-h-[70vh] overflow-hidden flex items-center justify-center bg-[#07090e]">
+        <div className="max-h-[58vh] sm:max-h-[68vh] overflow-hidden flex items-center justify-center bg-[#07090e] p-2">
           {item.image ? (
             <img
               src={item.image}
               alt={item.title}
-              className="max-h-[70vh] w-auto object-contain mx-auto"
+              className="max-h-[56vh] sm:max-h-[66vh] w-auto max-w-full object-contain mx-auto rounded-lg"
               onError={(e) => {
                 (e.target as HTMLImageElement).src =
                   'https://placehold.co/1080x1080/10141e/00f0ff?text=DicksonGrafiks+Artwork';
               }}
             />
           ) : (
-            <div className="w-full h-[400px] flex flex-col items-center justify-center p-10 bg-gradient-to-br from-[#121526] via-[#090b14] to-[#1a0f28] text-center">
-              <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mb-4 text-[#00f0ff]">
-                <Sparkles size={32} />
+            <div className="w-full h-[280px] sm:h-[380px] flex flex-col items-center justify-center p-6 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-3 text-[#00f0ff]">
+                <Sparkles size={28} />
               </div>
-              <h3 className="font-display text-2xl font-bold text-white mb-2">{item.title}</h3>
-              <p className="text-sm text-white/60 max-w-md">{item.description}</p>
+              <h3 className="font-display text-xl sm:text-2xl font-bold text-white mb-2">{item.title}</h3>
+              <p className="text-xs sm:text-sm text-white/60 max-w-md">{item.description}</p>
             </div>
           )}
         </div>
 
-        <div className="p-6 bg-[#0a0c12] border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <span className="text-xs uppercase tracking-wider font-semibold text-[#00f0ff]">
-              {item.category || 'High-Fidelity Portfolio'}
+        <div className="p-4 sm:p-6 bg-[#0a0c12] border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="min-w-0">
+            <span className="text-[10px] sm:text-xs uppercase tracking-wider font-bold text-[#00f0ff] block mb-0.5">
+              {item.category || 'Portfolio Showcase'}
             </span>
-            <h3 className="text-lg font-bold text-white mt-0.5">{item.title}</h3>
-            <p className="text-xs text-white/60 mt-1 max-w-xl">{item.description}</p>
+            <h3 className="text-base sm:text-lg font-black text-white truncate">{item.title}</h3>
+            <p className="text-xs text-white/60 mt-1 line-clamp-2 sm:line-clamp-none max-w-xl">{item.description}</p>
           </div>
           <button
             onClick={onClose}
-            className="px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-colors shrink-0"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-colors shrink-0 text-center"
           >
             Close Viewer
           </button>
@@ -1060,13 +1190,29 @@ export default function App() {
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
   const [cursorHovered, setCursorHovered] = useState(false);
   const [photoFilter, setPhotoFilter] = useState('All');
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  // Monitor touch device capability
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const touchCheck = () => {
+        setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+      };
+      touchCheck();
+      window.addEventListener('resize', touchCheck);
+      return () => window.removeEventListener('resize', touchCheck);
+    }
+  }, []);
 
   const filteredPhotoEdits = useMemo(() => {
     if (photoFilter === 'All') return ASSETS.photoEdits;
     return ASSETS.photoEdits.filter((item) => item.filterGroup === photoFilter);
   }, [photoFilter]);
 
+  // Track mouse coordinates only on desktop
   useEffect(() => {
+    if (isTouchDevice) return;
+
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({
         x: (e.clientX / window.innerWidth) * 2 - 1,
@@ -1077,54 +1223,88 @@ export default function App() {
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  }, [isTouchDevice]);
 
-  const scrollToSection = (id: string) => {
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [mobileMenuOpen]);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
+  const scrollToSection = useCallback((id: string) => {
     setMobileMenuOpen(false);
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      const navOffset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - navOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth',
+      });
     }
-  };
+  }, []);
 
   return (
-    <div className="relative min-h-screen bg-[#06070a] text-white selection:bg-[#00f0ff] selection:text-black overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#06070a] text-white selection:bg-[#00f0ff] selection:text-black overflow-x-hidden w-full">
       <style>{CUSTOM_STYLES}</style>
 
-      {/* Desktop Ambient Custom Cursor Glow */}
-      <div
-        className="hidden lg:block fixed w-8 h-8 pointer-events-none rounded-full border border-[#00f0ff]/60 -translate-x-1/2 -translate-y-1/2 z-[9999] transition-transform duration-75"
-        style={{
-          left: `${cursorPos.x}px`,
-          top: `${cursorPos.y}px`,
-          transform: `translate(-50%, -50%) scale(${cursorHovered ? 1.8 : 1})`,
-          backgroundColor: cursorHovered ? 'rgba(0, 240, 255, 0.15)' : 'transparent',
-          boxShadow: '0 0 20px rgba(0, 240, 255, 0.4)',
-        }}
-      />
-      <div
-        className="hidden lg:block fixed w-1.5 h-1.5 pointer-events-none rounded-full bg-[#00f0ff] -translate-x-1/2 -translate-y-1/2 z-[9999]"
-        style={{ left: `${cursorPos.x}px`, top: `${cursorPos.y}px` }}
-      />
+      {/* Desktop-only Ambient Cursor */}
+      {!isTouchDevice && (
+        <>
+          <div
+            className="hidden lg:block fixed w-8 h-8 pointer-events-none rounded-full border border-[#00f0ff]/60 -translate-x-1/2 -translate-y-1/2 z-[9999] transition-transform duration-75"
+            style={{
+              left: `${cursorPos.x}px`,
+              top: `${cursorPos.y}px`,
+              transform: `translate(-50%, -50%) scale(${cursorHovered ? 1.7 : 1})`,
+              backgroundColor: cursorHovered ? 'rgba(0, 240, 255, 0.15)' : 'transparent',
+              boxShadow: '0 0 20px rgba(0, 240, 255, 0.4)',
+            }}
+          />
+          <div
+            className="hidden lg:block fixed w-1.5 h-1.5 pointer-events-none rounded-full bg-[#00f0ff] -translate-x-1/2 -translate-y-1/2 z-[9999]"
+            style={{ left: `${cursorPos.x}px`, top: `${cursorPos.y}px` }}
+          />
+        </>
+      )}
 
-      {/* STICKY / FLOATING NAVIGATION */}
-      <header className="fixed top-0 left-0 right-0 z-[100] px-4 sm:px-8 py-4 sm:py-5 transition-all">
-        <nav className="max-w-7xl mx-auto flex items-center justify-between px-5 sm:px-6 py-3.5 rounded-full glass-panel border border-white/10 shadow-2xl backdrop-blur-2xl">
+      {}
+      <header className="fixed top-0 left-0 right-0 z-[100] px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4 transition-all pointer-events-none">
+        <nav className="pointer-events-auto max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3 rounded-full glass-panel border border-white/10 shadow-2xl backdrop-blur-2xl">
           {/* Brand Wordmark */}
           <div
             onClick={() => scrollToSection('hero')}
-            className="flex items-center cursor-pointer group"
+            className="flex items-center cursor-pointer group select-none"
             onMouseEnter={() => setCursorHovered(true)}
             onMouseLeave={() => setCursorHovered(false)}
           >
-            <span className="font-display font-extrabold text-xl tracking-tight text-white group-hover:text-[#00f0ff] transition-colors">
-              DicksonGrafiks
+            <span className="font-display font-black text-lg xs:text-xl tracking-tight text-white group-hover:text-[#00f0ff] transition-colors">
+              Dickson<span className="text-[#00f0ff]">Grafiks</span>
             </span>
           </div>
 
-          {/* Center Links (Desktop) */}
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/75">
-            {['Work', 'About', 'Services', 'Contact'].map((item) => (
+          {/* Desktop Nav Links */}
+          <div className="hidden md:flex items-center gap-7 lg:gap-9 text-sm font-medium text-white/75">
+            {['Work', 'Motion', 'Services', 'About', 'Global', 'Contact'].map((item) => (
               <button
                 key={item}
                 onClick={() => scrollToSection(item.toLowerCase())}
@@ -1138,48 +1318,48 @@ export default function App() {
             ))}
           </div>
 
-          {/* Right Action Button (Desktop) */}
+          {/* Action CTA (Desktop) */}
           <div className="hidden md:block">
             <button
               onClick={() => scrollToSection('contact')}
               onMouseEnter={() => setCursorHovered(true)}
               onMouseLeave={() => setCursorHovered(false)}
-              className="px-5 py-2 rounded-full bg-white text-black font-semibold text-xs tracking-wide uppercase hover:bg-[#00f0ff] hover:text-black transition-all duration-300 shadow-md hover:shadow-[#00f0ff]/30 active:scale-95 flex items-center gap-1.5"
+              className="px-5 py-2.5 rounded-full bg-white text-black font-extrabold text-xs tracking-wider uppercase hover:bg-[#00f0ff] hover:text-black transition-all duration-300 shadow-md hover:shadow-[#00f0ff]/30 active:scale-95 flex items-center gap-1.5"
             >
-              <span>Start a Project</span>
+              <span>Start Project</span>
               <ArrowUpRight size={14} />
             </button>
           </div>
 
-          {/* Mobile Hamburger Button */}
+          {/* Mobile Hamburger Toggle Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-            aria-label="Toggle Navigation"
+            className="md:hidden p-2 rounded-full bg-white/10 text-white hover:bg-white/20 active:scale-90 transition-all flex items-center justify-center"
+            aria-label="Toggle Navigation Menu"
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </nav>
 
-        {/* Mobile Navigation Drawer */}
+        {/* Mobile Full-Bleed Navigation Overlay */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-3 max-w-7xl mx-auto rounded-3xl glass-panel p-6 border border-white/15 animate-in slide-in-from-top-4 duration-300 shadow-2xl flex flex-col gap-4">
-            <div className="text-xs uppercase tracking-widest text-white/40 font-semibold px-2">
-              Navigation Menu
+          <div className="pointer-events-auto md:hidden mt-2 max-w-7xl mx-auto rounded-3xl glass-panel p-5 border border-white/15 animate-in slide-in-from-top-3 duration-300 shadow-2xl flex flex-col gap-2 max-h-[80vh] overflow-y-auto">
+            <div className="text-[10px] uppercase tracking-widest text-[#00f0ff] font-bold px-3 pt-1">
+              Studio Navigation
             </div>
-            {['Work', 'About', 'Services', 'Contact'].map((item) => (
+            {['Work', 'Motion', 'Services', 'About', 'Global', 'Contact'].map((item) => (
               <button
                 key={item}
                 onClick={() => scrollToSection(item.toLowerCase())}
-                className="flex items-center justify-between text-left py-3 px-3 rounded-xl hover:bg-white/10 text-lg font-medium text-white transition-colors"
+                className="flex items-center justify-between text-left py-3 px-3.5 rounded-xl hover:bg-white/10 active:bg-white/15 text-base font-semibold text-white transition-colors"
               >
                 <span>{item}</span>
-                <ChevronRight size={18} className="text-white/40" />
+                <ChevronRight size={16} className="text-white/40" />
               </button>
             ))}
             <button
               onClick={() => scrollToSection('contact')}
-              className="mt-2 w-full py-3.5 rounded-full bg-gradient-to-r from-[#00f0ff] to-[#8a2be2] text-black font-bold text-sm shadow-lg text-center"
+              className="mt-3 w-full py-3.5 rounded-full bg-gradient-to-r from-[#00f0ff] via-white to-[#ff7a00] text-black font-black text-xs uppercase tracking-wider shadow-lg text-center active:scale-98 transition-transform"
             >
               Start a Project
             </button>
@@ -1187,141 +1367,136 @@ export default function App() {
         )}
       </header>
 
-      {/* SECTION 1: HERO SECTION */}
+      {}
       <section
         id="hero"
-        className="relative min-h-screen flex flex-col justify-center items-center px-6 sm:px-8 pt-28 pb-16 overflow-hidden"
+        className="relative min-h-[92vh] sm:min-h-screen flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-12 overflow-hidden"
       >
-        {/* Ambient Radial Background Glows */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#00f0ff]/10 rounded-full blur-[140px] pointer-events-none animate-pulse-glow" />
-        <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-[#8a2be2]/15 rounded-full blur-[120px] pointer-events-none" />
+        {/* Ambient background glows */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] xs:w-[450px] md:w-[650px] h-[300px] xs:h-[450px] md:h-[650px] bg-[#00f0ff]/10 rounded-full blur-[100px] md:blur-[140px] pointer-events-none animate-pulse-glow" />
+        <div className="absolute bottom-10 right-5 sm:right-10 w-[260px] md:w-[450px] h-[260px] md:h-[450px] bg-[#8a2be2]/12 rounded-full blur-[90px] md:blur-[120px] pointer-events-none" />
 
-        {/* 3D WebGL Interactive Artboard Canvas Scene */}
+        {/* 3D WebGL Canvas Scene */}
         <Hero3DScene mousePos={mousePos} />
 
-        {/* Foreground Content */}
-        <div className="relative z-20 max-w-5xl mx-auto text-center flex flex-col items-center">
-          {/* Supporting Headline */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/5 border border-white/15 text-xs font-semibold uppercase tracking-widest text-[#00f0ff] mb-6 backdrop-blur-md">
-            <Sparkles size={13} className="text-[#00f0ff]" />
+        {/* Hero Content */}
+        <div className="relative z-20 max-w-5xl mx-auto text-center flex flex-col items-center w-full">
+          <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-white/5 border border-white/15 text-[11px] sm:text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-5 sm:mb-6 backdrop-blur-md">
+            <Sparkles size={13} className="text-[#00f0ff] shrink-0" />
             <span>Premium Visual Design</span>
           </div>
 
-          {/* Main Tagline */}
-          <h1 className="font-display font-black text-5xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight text-white leading-[0.95] mb-6">
+          <h1 className="font-display font-black fluid-hero-title tracking-tight text-white mb-5 sm:mb-6 select-none">
             VISUALS THAT{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00f0ff] via-white to-[#ff7a00] glow-text-cyan">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00f0ff] via-white to-[#ff7a00] glow-text-cyan block xs:inline">
               SPEAKS
             </span>
           </h1>
 
-          {/* Main Description */}
-          <p className="max-w-2xl text-base sm:text-lg md:text-xl text-white/80 leading-relaxed font-normal mb-10">
+          <p className="max-w-2xl text-sm xs:text-base sm:text-lg md:text-xl text-white/80 leading-relaxed font-normal mb-8 sm:mb-10 px-2">
             “Bold visuals, premium edits and modern creative solutions for brands, businesses and
             individuals looking to make a lasting impact.”
           </p>
 
-          {/* Prominent CTA */}
-          <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="flex flex-col xs:flex-row items-center justify-center gap-3.5 sm:gap-4 w-full max-w-md xs:max-w-none">
             <button
               onClick={() => scrollToSection('contact')}
               onMouseEnter={() => setCursorHovered(true)}
               onMouseLeave={() => setCursorHovered(false)}
-              className="px-9 py-4 rounded-full bg-gradient-to-r from-[#00f0ff] via-white to-[#00f0ff] text-black font-extrabold text-sm uppercase tracking-wider shadow-2xl hover:shadow-[0_0_35px_rgba(0,240,255,0.6)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2"
+              className="w-full xs:w-auto px-8 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-[#00f0ff] via-white to-[#00f0ff] text-black font-black text-xs sm:text-sm uppercase tracking-wider shadow-2xl hover:shadow-[0_0_35px_rgba(0,240,255,0.6)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2"
             >
               <span>Start a Project</span>
               <ArrowUpRight size={16} />
             </button>
             <button
               onClick={() => scrollToSection('work')}
-              className="px-8 py-4 rounded-full glass-panel hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center gap-2"
+              className="w-full xs:w-auto px-7 py-3.5 sm:py-4 rounded-full glass-panel hover:bg-white/10 active:bg-white/15 text-white font-semibold text-xs sm:text-sm transition-colors flex items-center justify-center gap-2"
             >
-              <span>Explore Selected Work</span>
-              <ChevronDown size={16} />
+              <span>Explore Graphic Design</span>
+              <ChevronDown size={15} />
             </button>
           </div>
         </div>
 
-        {/* Scroll Indicator */}
+        {/* Downward indicator */}
         <div
           onClick={() => scrollToSection('work')}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 cursor-pointer text-white/50 hover:text-white transition-colors"
+          className="relative mt-12 sm:mt-16 z-20 flex flex-col items-center gap-1.5 cursor-pointer text-white/45 hover:text-white transition-colors select-none"
         >
-          <span className="text-[10px] uppercase tracking-widest font-semibold">Scroll to explore</span>
-          <div className="w-5 h-8 rounded-full border border-white/30 flex items-start justify-center p-1">
-            <div className="w-1 h-2 bg-[#00f0ff] rounded-full animate-bounce" />
+          <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-bold">Scroll Down</span>
+          <div className="w-4 h-7 rounded-full border border-white/25 flex items-start justify-center p-1">
+            <div className="w-1 h-1.5 bg-[#00f0ff] rounded-full animate-bounce" />
           </div>
         </div>
       </section>
 
-      {/* SECTION 2: STATS SECTION */}
+      {}
       <StatsSection />
 
-      {/* SECTION 3: SELECTED WORK */}
-      <section id="work" className="relative z-20 py-24 sm:py-32 px-6 sm:px-8 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+      {}
+      <section id="work" className="relative z-20 py-16 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 sm:mb-16 gap-4 sm:gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-3">
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-2.5">
               <Layers size={14} />
               <span>Signature Execution</span>
             </div>
-            <h2 className="font-display font-black text-4xl sm:text-5xl md:text-6xl text-white tracking-tight">
-              Selected Work
+            {}
+            <h2 className="font-display font-black text-3xl xs:text-4xl sm:text-5xl md:text-6xl text-white tracking-tight">
+              Graphic Design
             </h2>
           </div>
-          <p className="text-white/70 max-w-md text-sm sm:text-base leading-relaxed">
+          <p className="text-white/70 max-w-md text-xs sm:text-sm md:text-base leading-relaxed">
             “A curated selection of our best visual projects and premium creative executions.”
           </p>
         </div>
 
-        {/* Project Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+        {/* Responsive Work Grid: 1 col on mobile, 2 on tablet, 4 on desktop */}
+        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {ASSETS.projects.map((project, idx) => (
             <TiltCard
               key={project.id}
               onClick={() => setSelectedImage(project)}
               className="cursor-pointer group h-full"
             >
-              <div className="h-full rounded-3xl glass-panel border border-white/10 hover:border-[#00f0ff]/40 overflow-hidden flex flex-col justify-between transition-all duration-300 shadow-xl">
-                {/* Visual Thumbnail */}
+              <div className="h-full rounded-2xl sm:rounded-3xl glass-panel border border-white/10 hover:border-[#00f0ff]/40 overflow-hidden flex flex-col justify-between transition-all duration-300 shadow-xl">
                 <div className="relative w-full aspect-[4/5] bg-[#090b12] overflow-hidden">
                   <img
                     src={project.image}
                     alt={project.title}
                     loading="lazy"
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src =
                         'https://placehold.co/600x800/10141e/00f0ff?text=' +
                         encodeURIComponent(project.title);
                     }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#06070a] via-transparent to-black/20 opacity-80" />
-                  <div className="absolute top-3 left-3 z-10">
-                    <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-semibold text-white/90">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#06070a] via-transparent to-black/25 opacity-80" />
+                  <div className="absolute top-2.5 left-2.5 z-10">
+                    <span className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-[9px] sm:text-[10px] font-bold text-white/90">
                       {project.category}
                     </span>
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
-                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white scale-90 group-hover:scale-100 transition-transform">
-                      <Eye size={20} className="text-[#00f0ff]" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white scale-90 group-hover:scale-100 transition-transform">
+                      <Eye size={18} className="text-[#00f0ff]" />
                     </div>
                   </div>
                 </div>
 
-                {/* Meta details */}
-                <div className="p-5 flex flex-col justify-between flex-grow">
+                <div className="p-4 sm:p-5 flex flex-col justify-between flex-grow">
                   <div>
-                    <h3 className="font-display font-bold text-lg text-white group-hover:text-[#00f0ff] transition-colors mb-1.5">
+                    <h3 className="font-display font-bold text-base sm:text-lg text-white group-hover:text-[#00f0ff] transition-colors mb-1 truncate">
                       {project.title}
                     </h3>
                     <p className="text-xs text-white/60 leading-relaxed line-clamp-2">
                       {project.description}
                     </p>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40">
+                  <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-white/45">
                     <span>Project 0{idx + 1}</span>
-                    <span className="text-white group-hover:text-[#00f0ff] group-hover:translate-x-1 transition-all inline-flex items-center gap-1 font-medium">
+                    <span className="text-white group-hover:text-[#00f0ff] inline-flex items-center gap-1 font-semibold">
                       Inspect <ChevronRight size={12} />
                     </span>
                   </div>
@@ -1332,30 +1507,29 @@ export default function App() {
         </div>
       </section>
 
-      {/* SECTION 4: MOTION & VIDEO EDITS */}
-      <section id="motion" className="relative z-20 py-24 sm:py-32 bg-[#040508] border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+      {}
+      <section id="motion" className="relative z-20 py-16 sm:py-24 lg:py-32 bg-[#040508] border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 sm:mb-16 gap-4 sm:gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-3">
+              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-2.5">
                 <Video size={14} />
                 <span>Cinematic Pacing</span>
               </div>
-              <h2 className="font-display font-black text-4xl sm:text-5xl md:text-6xl text-white tracking-tight">
+              <h2 className="font-display font-black text-3xl xs:text-4xl sm:text-5xl md:text-6xl text-white tracking-tight">
                 Motion & Video Edits
               </h2>
             </div>
-            <p className="text-white/70 max-w-md text-sm sm:text-base leading-relaxed">
+            <p className="text-white/70 max-w-md text-xs sm:text-sm md:text-base leading-relaxed">
               “High-energy video editing, motion graphics, and engaging short-form content designed to
               capture attention instantly.”
             </p>
           </div>
 
-          {/* 4 Large Video Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {ASSETS.videos.map((vid) => (
               <TiltCard key={vid.id} className="h-full">
-                <div className="h-full rounded-3xl glass-panel border border-white/10 hover:border-white/25 overflow-hidden flex flex-col justify-between group">
+                <div className="h-full rounded-2xl sm:rounded-3xl glass-panel border border-white/10 hover:border-white/25 overflow-hidden flex flex-col justify-between group">
                   <div
                     onClick={() => setSelectedVideo(vid)}
                     className="relative w-full aspect-video bg-[#07090e] cursor-pointer overflow-hidden"
@@ -1367,40 +1541,40 @@ export default function App() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Play size={18} className="text-white fill-white ml-0.5" />
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/25 backdrop-blur-md border border-white/30 flex items-center justify-center group-hover:scale-110 active:scale-95 transition-transform">
+                        <Play size={16} className="text-white fill-white ml-0.5" />
                       </div>
                     </div>
-                    <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded bg-black/70 backdrop-blur-sm text-[10px] font-semibold text-white/80">
+                    <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/80 backdrop-blur-sm text-[9px] sm:text-[10px] font-bold text-white/90">
                       {vid.duration}
                     </div>
                   </div>
 
-                  <div className="p-5 flex flex-col justify-between flex-grow">
+                  <div className="p-4 sm:p-5 flex flex-col justify-between flex-grow">
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-[#00f0ff] tracking-wider">
+                      <span className="text-[10px] uppercase font-black text-[#00f0ff] tracking-wider">
                         {vid.tag}
                       </span>
-                      <h3 className="font-display font-bold text-lg text-white mt-1 mb-4 group-hover:text-[#00f0ff] transition-colors">
+                      <h3 className="font-display font-bold text-base sm:text-lg text-white mt-1 mb-3 group-hover:text-[#00f0ff] transition-colors line-clamp-1">
                         {vid.title}
                       </h3>
                     </div>
 
-                    <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+                    <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
                       <button
                         onClick={() => setSelectedVideo(vid)}
-                        className="text-xs font-semibold text-white/80 hover:text-white flex items-center gap-1.5"
+                        className="font-bold text-white/85 hover:text-white flex items-center gap-1"
                       >
-                        <Play size={12} className="text-[#00f0ff]" />
+                        <Play size={11} className="text-[#00f0ff]" />
                         <span>Watch Preview</span>
                       </button>
                       <a
                         href={vid.youtubeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-white/40 hover:text-[#00f0ff] flex items-center gap-1 transition-colors"
+                        className="text-white/45 hover:text-[#00f0ff] flex items-center gap-1 transition-colors"
                       >
-                        <span>Watch on YouTube</span>
+                        <span>Link</span>
                         <ExternalLink size={11} />
                       </a>
                     </div>
@@ -1412,25 +1586,25 @@ export default function App() {
         </div>
       </section>
 
-      {/* SECTION 5: PHOTO EDIT GALLERY */}
-      <section className="relative z-20 py-24 sm:py-32 px-6 sm:px-8 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+      {}
+      <section className="relative z-20 py-16 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 gap-4 sm:gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-3">
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-2.5">
               <Aperture size={14} />
               <span>Color & Detail Precision</span>
             </div>
-            <h2 className="font-display font-black text-4xl sm:text-5xl md:text-6xl text-white tracking-tight">
+            <h2 className="font-display font-black text-3xl xs:text-4xl sm:text-5xl md:text-6xl text-white tracking-tight">
               Photo Edit
             </h2>
           </div>
-          <p className="text-white/70 max-w-md text-sm sm:text-base leading-relaxed">
+          <p className="text-white/70 max-w-md text-xs sm:text-sm md:text-base leading-relaxed">
             “Explore more premium visuals and creative edits from our portfolio collection.”
           </p>
         </div>
 
-        {/* Interactive Category Filter Pills */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-12">
+        {/* Category Pills: Horizontal scrollable on mobile */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-8 sm:mb-12 scrollbar-none no-scrollbar">
           {['All', 'Beauty & Skin', 'Studio & Editorial', 'Color & Lighting'].map((cat) => {
             const isActive = photoFilter === cat;
             const count =
@@ -1441,16 +1615,16 @@ export default function App() {
               <button
                 key={cat}
                 onClick={() => setPhotoFilter(cat)}
-                className={`px-4 sm:px-5 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 flex items-center gap-2 ${
+                className={`whitespace-nowrap px-3.5 sm:px-5 py-2 rounded-full text-xs font-bold tracking-wide transition-all duration-300 flex items-center gap-2 shrink-0 ${
                   isActive
-                    ? 'bg-[#00f0ff] text-black shadow-lg shadow-[#00f0ff]/30 scale-105'
+                    ? 'bg-[#00f0ff] text-black shadow-lg shadow-[#00f0ff]/30 scale-102'
                     : 'glass-panel border border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 <span>{cat}</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                    isActive ? 'bg-black/20 text-black font-bold' : 'bg-white/10 text-white/60'
+                  className={`text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full ${
+                    isActive ? 'bg-black/20 text-black font-black' : 'bg-white/10 text-white/60'
                   }`}
                 >
                   {count}
@@ -1460,52 +1634,52 @@ export default function App() {
           })}
         </div>
 
-        {/* Expanded 16-Card Showcase Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+        {/* 16-Card Showcase Grid */}
+        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {filteredPhotoEdits.map((item, idx) => (
             <TiltCard
               key={item.id}
               onClick={() => setSelectedImage(item)}
               className="cursor-pointer group h-full"
             >
-              <div className="h-full rounded-3xl glass-panel border border-white/10 hover:border-[#00f0ff]/40 overflow-hidden flex flex-col justify-between transition-all duration-300 shadow-xl">
+              <div className="h-full rounded-2xl sm:rounded-3xl glass-panel border border-white/10 hover:border-[#00f0ff]/40 overflow-hidden flex flex-col justify-between transition-all duration-300 shadow-xl">
                 <div className="relative w-full aspect-[4/5] bg-[#090b12] overflow-hidden">
                   <img
                     src={item.image}
                     alt={item.title}
                     loading="lazy"
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src =
                         'https://placehold.co/600x800/10141e/00f0ff?text=' +
                         encodeURIComponent(item.title);
                     }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#06070a] via-transparent to-black/20 opacity-80" />
-                  <div className="absolute top-3 left-3 z-10">
-                    <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-semibold text-white/90">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#06070a] via-transparent to-black/25 opacity-80" />
+                  <div className="absolute top-2.5 left-2.5 z-10">
+                    <span className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-[9px] sm:text-[10px] font-bold text-white/90">
                       {item.category}
                     </span>
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
-                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white scale-90 group-hover:scale-100 transition-transform">
-                      <Eye size={20} className="text-[#00f0ff]" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white scale-90 group-hover:scale-100 transition-transform">
+                      <Eye size={18} className="text-[#00f0ff]" />
                     </div>
                   </div>
                 </div>
 
-                <div className="p-5 flex flex-col justify-between flex-grow">
+                <div className="p-4 sm:p-5 flex flex-col justify-between flex-grow">
                   <div>
-                    <h3 className="font-display font-bold text-lg text-white group-hover:text-[#00f0ff] transition-colors mb-1.5">
+                    <h3 className="font-display font-bold text-base sm:text-lg text-white group-hover:text-[#00f0ff] transition-colors mb-1 truncate">
                       {item.title}
                     </h3>
                     <p className="text-xs text-white/60 leading-relaxed line-clamp-2">
                       {item.description}
                     </p>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40">
+                  <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-white/45">
                     <span>Edit {String(idx + 1).padStart(2, '0')}</span>
-                    <span className="text-white group-hover:text-[#00f0ff] group-hover:translate-x-1 transition-all inline-flex items-center gap-1 font-medium">
+                    <span className="text-white group-hover:text-[#00f0ff] inline-flex items-center gap-1 font-semibold">
                       Inspect <ChevronRight size={12} />
                     </span>
                   </div>
@@ -1516,25 +1690,25 @@ export default function App() {
         </div>
       </section>
 
-      {/* SECTION 6: ABOUT & EXPERTISE */}
-      <section id="services" className="relative z-20 py-24 sm:py-32 bg-[#040508] border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8">
-          <div className="max-w-3xl mb-16">
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-3">
+      {}
+      <section id="services" className="relative z-20 py-16 sm:py-24 lg:py-32 bg-[#040508] border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-2.5">
               <Compass size={14} />
               <span>Studio Capabilities</span>
             </div>
-            <h2 className="font-display font-black text-4xl sm:text-5xl md:text-6xl text-white tracking-tight mb-6">
+            <h2 className="font-display font-black text-3xl xs:text-4xl sm:text-5xl md:text-6xl text-white tracking-tight mb-4 sm:mb-6">
               About & Expertise
             </h2>
-            <p className="text-base sm:text-lg text-white/80 leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg text-white/80 leading-relaxed">
               “DicksonGrafiks, founded by Goodness N. Dickson, is a premium visual design brand focused
               on creating bold, modern and impactful creative visuals that stand out and communicate
               effectively across all platforms.”
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {[
               {
                 title: 'Brand & Identity Design',
@@ -1576,28 +1750,28 @@ export default function App() {
               const Icon = exp.icon;
               return (
                 <TiltCard key={idx} className="h-full">
-                  <div className="h-full p-8 rounded-3xl glass-panel border border-white/10 hover:border-white/25 transition-all duration-300 flex flex-col justify-between group">
+                  <div className="h-full p-6 sm:p-8 rounded-2xl sm:rounded-3xl glass-panel border border-white/10 hover:border-white/25 transition-all duration-300 flex flex-col justify-between group">
                     <div>
                       <div
-                        className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110"
+                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110"
                         style={{
                           backgroundColor: `${exp.accent}15`,
                           color: exp.accent,
                           border: `1px solid ${exp.accent}30`,
                         }}
                       >
-                        <Icon size={24} />
+                        <Icon size={22} />
                       </div>
-                      <h3 className="font-display font-bold text-xl sm:text-2xl text-white mb-3">
+                      <h3 className="font-display font-bold text-lg sm:text-xl text-white mb-2.5">
                         {exp.title}
                       </h3>
-                      <p className="text-sm text-white/65 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-white/65 leading-relaxed">
                         {exp.desc}
                       </p>
                     </div>
 
-                    <div className="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs text-white/40 group-hover:text-white/80 transition-colors">
-                      <span>Discipline 0{idx + 1}</span>
+                    <div className="pt-4 sm:pt-6 mt-4 sm:mt-6 border-t border-white/10 flex items-center justify-between text-xs text-white/40 group-hover:text-white/80 transition-colors">
+                      <span>Capability 0{idx + 1}</span>
                       <ArrowUpRight size={14} />
                     </div>
                   </div>
@@ -1608,59 +1782,66 @@ export default function App() {
         </div>
       </section>
 
-      {/* SECTION 7: MEET THE CREATIVE MIND */}
-      <section id="about" className="relative z-20 py-24 sm:py-32 px-6 sm:px-8 max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+      {}
+      <section id="about" className="relative z-20 py-16 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
+        <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+          {/* Founder Image Card */}
           <div className="w-full lg:w-1/2 flex justify-center">
-            <TiltCard className="w-full max-w-md">
-              <div className="relative p-3 rounded-[36px] bg-gradient-to-tr from-[#00f0ff]/30 via-white/10 to-[#ff7a00]/30 border border-white/20 shadow-2xl">
-                <div className="absolute -top-5 -left-5 z-30 px-4 py-2 rounded-2xl glass-panel border border-white/20 shadow-xl flex items-center gap-2 animate-float">
-                  <Award size={16} className="text-[#00f0ff]" />
-                  <span className="text-xs font-bold text-white">Lead Creative</span>
-                </div>
+            <div className="relative w-full max-w-sm sm:max-w-md">
+              {/* Overlapping Badges - positioned safely inside on mobile */}
+              <div className="absolute -top-3 left-2 sm:-top-5 sm:-left-4 z-30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl glass-panel border border-white/20 shadow-xl flex items-center gap-2 animate-float">
+                <Award size={15} className="text-[#00f0ff]" />
+                <span className="text-[11px] sm:text-xs font-bold text-white">Lead Creative</span>
+              </div>
 
-                <div className="absolute -bottom-5 -right-5 z-30 px-4 py-2.5 rounded-2xl glass-panel border border-white/20 shadow-xl flex items-center gap-2 animate-float" style={{ animationDelay: '2s' }}>
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#00f0ff] animate-ping" />
-                  <span className="text-xs font-semibold text-white">Available Worldwide</span>
-                </div>
+              <div
+                className="absolute -bottom-3 right-2 sm:-bottom-5 sm:-right-4 z-30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl glass-panel border border-white/20 shadow-xl flex items-center gap-2 animate-float"
+                style={{ animationDelay: '2s' }}
+              >
+                <div className="w-2 h-2 rounded-full bg-[#00f0ff] animate-ping" />
+                <span className="text-[11px] sm:text-xs font-semibold text-white">Available Worldwide</span>
+              </div>
 
-                <div className="relative rounded-[30px] overflow-hidden aspect-[4/5] bg-[#0c0f18]">
+              <div className="p-2 sm:p-3 rounded-3xl sm:rounded-[36px] bg-gradient-to-tr from-[#00f0ff]/30 via-white/10 to-[#ff7a00]/30 border border-white/20 shadow-2xl">
+                <div className="relative rounded-2xl sm:rounded-[28px] overflow-hidden aspect-[4/5] bg-[#0c0f18]">
                   <img
                     src={ASSETS.founder.image}
                     alt={ASSETS.founder.name}
+                    loading="lazy"
                     className="w-full h-full object-cover object-center"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src =
                         'https://placehold.co/800x1000/10141e/ffffff?text=Goodness+N.+Dickson';
                     }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                  <div className="absolute bottom-6 left-6 right-6">
-                    <span className="text-xs uppercase tracking-widest font-semibold text-[#00f0ff]">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
+                  <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6">
+                    <span className="text-[10px] sm:text-xs uppercase tracking-widest font-black text-[#00f0ff] block">
                       Founder & Visionary
                     </span>
-                    <h4 className="font-display text-2xl font-black text-white">
+                    <h4 className="font-display text-xl sm:text-2xl font-black text-white">
                       {ASSETS.founder.name}
                     </h4>
                   </div>
                 </div>
               </div>
-            </TiltCard>
+            </div>
           </div>
 
-          <div className="w-full lg:w-1/2 flex flex-col items-start">
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-3">
+          {/* Founder Bio Text */}
+          <div className="w-full lg:w-1/2 flex flex-col items-start text-left">
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-2.5">
               <Sparkle size={14} />
               <span>The Architect Behind the Visuals</span>
             </div>
-            <h2 className="font-display font-black text-4xl sm:text-5xl text-white tracking-tight mb-2">
+            <h2 className="font-display font-black text-3xl xs:text-4xl sm:text-5xl text-white tracking-tight mb-2">
               Meet the Creative Mind
             </h2>
-            <div className="text-sm uppercase font-bold tracking-widest text-[#ff7a00] mb-6">
+            <div className="text-xs sm:text-sm uppercase font-extrabold tracking-wider text-[#ff7a00] mb-5">
               {ASSETS.founder.name} — <span className="text-white/70">{ASSETS.founder.role}</span>
             </div>
 
-            <div className="space-y-4 text-white/80 leading-relaxed text-sm sm:text-base mb-8">
+            <div className="space-y-3.5 text-white/80 leading-relaxed text-xs sm:text-sm md:text-base mb-6 sm:mb-8">
               <p>
                 “With a profound passion for visual storytelling, Goodness founded DicksonGrafiks to bridge
                 the gap between brilliant ideas and impactful designs. Every project is approached with a
@@ -1675,20 +1856,20 @@ export default function App() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 w-full mb-8">
-              <div className="p-4 rounded-2xl glass-panel border border-white/10">
-                <span className="text-xs text-white/50 block">Design Philosophy</span>
-                <span className="text-sm font-bold text-white mt-1 block">Bold & Impact-Driven</span>
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full mb-6 sm:mb-8">
+              <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl glass-panel border border-white/10">
+                <span className="text-[10px] sm:text-xs text-white/50 block">Design Philosophy</span>
+                <span className="text-xs sm:text-sm font-bold text-white mt-1 block">Bold & Impact-Driven</span>
               </div>
-              <div className="p-4 rounded-2xl glass-panel border border-white/10">
-                <span className="text-xs text-white/50 block">Core Standard</span>
-                <span className="text-sm font-bold text-[#00f0ff] mt-1 block">Zero Visual Compromise</span>
+              <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl glass-panel border border-white/10">
+                <span className="text-[10px] sm:text-xs text-white/50 block">Core Standard</span>
+                <span className="text-xs sm:text-sm font-bold text-[#00f0ff] mt-1 block">Zero Compromise</span>
               </div>
             </div>
 
             <button
               onClick={() => scrollToSection('contact')}
-              className="px-8 py-3.5 rounded-full bg-white text-black font-bold text-xs uppercase tracking-wider hover:bg-[#00f0ff] transition-colors"
+              className="w-full sm:w-auto px-7 py-3 sm:py-3.5 rounded-full bg-white text-black font-extrabold text-xs uppercase tracking-wider hover:bg-[#00f0ff] transition-colors text-center"
             >
               Collaborate with Goodness
             </button>
@@ -1696,45 +1877,46 @@ export default function App() {
         </div>
       </section>
 
-      {/* SECTION 8: GLOBAL REACH */}
-      <section className="relative z-20 py-24 sm:py-32 bg-[#040508] border-t border-white/10 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-3">
+      {}
+      <section id="global" className="relative z-20 py-16 sm:py-24 lg:py-32 bg-[#040508] border-t border-white/10 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-2.5">
               <Globe2 size={14} />
               <span>Worldwide Footprint</span>
             </div>
-            <h2 className="font-display font-black text-4xl sm:text-5xl md:text-6xl text-white tracking-tight mb-4">
+            <h2 className="font-display font-black text-3xl xs:text-4xl sm:text-5xl md:text-6xl text-white tracking-tight mb-3">
               Global Reach
             </h2>
-            <p className="text-white/70 text-sm sm:text-base leading-relaxed">
+            <p className="text-white/70 text-xs sm:text-sm md:text-base leading-relaxed">
               “Our creative reach spans across multiple countries and international collaborations.”
             </p>
           </div>
 
-          <div className="my-8">
+          <div className="my-4 sm:my-6">
             <GlobalReach3DGlobe
               activeCountry={activeGlobeCountry}
               onSelectCountry={setActiveGlobeCountry}
             />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8">
+          {/* Interactive Country Badges */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
             {ASSETS.countries.map((country) => {
               const isSelected = activeGlobeCountry === country.name;
               return (
                 <div
                   key={country.name}
                   onClick={() => setActiveGlobeCountry(country.name)}
-                  className={`p-5 rounded-2xl transition-all duration-300 cursor-pointer text-center ${
+                  className={`p-3.5 sm:p-5 rounded-xl sm:rounded-2xl transition-all duration-300 cursor-pointer text-center select-none ${
                     isSelected
-                      ? 'bg-white/10 border border-[#00f0ff] shadow-lg shadow-[#00f0ff]/20'
+                      ? 'bg-white/10 border border-[#00f0ff] shadow-lg shadow-[#00f0ff]/20 scale-102'
                       : 'glass-panel border border-white/10 hover:border-white/20'
                   }`}
                 >
-                  <span className="text-3xl block mb-2">{country.flag}</span>
-                  <h4 className="font-display font-bold text-lg text-white">{country.name}</h4>
-                  <span className="text-[11px] text-white/50 block mt-1">{country.role}</span>
+                  <span className="text-2xl sm:text-3xl block mb-1 sm:mb-2">{country.flag}</span>
+                  <h4 className="font-display font-bold text-sm sm:text-base text-white">{country.name}</h4>
+                  <span className="text-[10px] sm:text-[11px] text-white/50 block mt-0.5 truncate">{country.role}</span>
                 </div>
               );
             })}
@@ -1742,30 +1924,31 @@ export default function App() {
         </div>
       </section>
 
-      {/* SECTION 9: CONTACT & CTA */}
-      <section id="contact" className="relative z-20 py-24 sm:py-36 px-6 sm:px-8 max-w-7xl mx-auto">
-        <div className="relative rounded-[40px] glass-panel border border-white/20 p-8 sm:p-14 lg:p-20 overflow-hidden text-center shadow-2xl">
-          <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#00f0ff]/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-[#8a2be2]/20 rounded-full blur-3xl pointer-events-none" />
+      {}
+      <section id="contact" className="relative z-20 py-16 sm:py-24 lg:py-36 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="relative rounded-3xl sm:rounded-[40px] glass-panel border border-white/20 p-6 sm:p-12 lg:p-20 overflow-hidden text-center shadow-2xl">
+          <div className="absolute -top-20 -left-20 w-64 sm:w-96 h-64 sm:h-96 bg-[#00f0ff]/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 -right-20 w-64 sm:w-96 h-64 sm:h-96 bg-[#8a2be2]/20 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/15 text-xs font-semibold uppercase tracking-widest text-[#00f0ff] mb-6">
+            <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-white/5 border border-white/15 text-[11px] sm:text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-5 sm:mb-6">
               <MessageSquare size={13} />
               <span>Let's Talk Design</span>
             </div>
 
-            <h2 className="font-display font-black text-4xl sm:text-6xl md:text-7xl text-white tracking-tight leading-[1.02] mb-6">
+            <h2 className="font-display font-black text-3xl xs:text-4xl sm:text-6xl md:text-7xl text-white tracking-tight leading-tight mb-4 sm:mb-6">
               Let’s Create Something{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00f0ff] via-white to-[#ff7a00]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00f0ff] via-white to-[#ff7a00] block xs:inline">
                 Powerful
               </span>
             </h2>
 
-            <p className="text-base sm:text-lg text-white/80 font-normal leading-relaxed mb-10 max-w-xl">
+            <p className="text-sm sm:text-base md:text-lg text-white/80 font-normal leading-relaxed mb-8 sm:mb-10 max-w-xl">
               “Want to learn Graphic Design or start a project? Message us today.”
             </p>
 
-            <TiltCard className="mb-12">
+            {/* Main Action Trigger */}
+            <div className="w-full max-w-xs sm:max-w-sm mb-10 sm:mb-12">
               <button
                 onClick={() => {
                   window.open(
@@ -1773,20 +1956,20 @@ export default function App() {
                     '_blank'
                   );
                 }}
-                className="px-10 py-5 rounded-full bg-gradient-to-r from-[#00f0ff] via-white to-[#00f0ff] text-black font-black text-base sm:text-lg uppercase tracking-wider shadow-2xl hover:shadow-[0_0_50px_rgba(0,240,255,0.7)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 cursor-pointer"
+                className="w-full px-8 py-4 sm:py-5 rounded-full bg-gradient-to-r from-[#00f0ff] via-white to-[#00f0ff] text-black font-black text-sm sm:text-base uppercase tracking-wider shadow-2xl hover:shadow-[0_0_50px_rgba(0,240,255,0.7)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer"
               >
                 <span>Start Now</span>
                 <Send size={18} />
               </button>
-            </TiltCard>
+            </div>
 
-            {/* Social Links Bar */}
-            <div className="w-full pt-10 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6">
-              <span className="text-xs uppercase tracking-widest text-white/50 font-semibold">
+            {/* Social channels: fluid wrapped layout */}
+            <div className="w-full pt-8 sm:pt-10 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-5 text-center sm:text-left">
+              <span className="text-[11px] sm:text-xs uppercase tracking-wider text-white/50 font-bold">
                 Connect Directly on Official Channels
               </span>
 
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
                 {ASSETS.socials.map((social) => {
                   const Icon = social.icon;
                   return (
@@ -1795,9 +1978,9 @@ export default function App() {
                       href={social.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2.5 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 hover:border-[#00f0ff]/50 text-white transition-all duration-300 hover:scale-105 flex items-center gap-2 text-xs font-semibold group"
+                      className="px-3.5 sm:px-4 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 hover:border-[#00f0ff]/50 text-white transition-all duration-300 hover:scale-105 flex items-center gap-2 text-xs font-semibold"
                     >
-                      <Icon size={14} className="text-[#00f0ff] group-hover:rotate-12 transition-transform" />
+                      <Icon size={14} className="text-[#00f0ff]" />
                       <span>{social.name}</span>
                     </a>
                   );
@@ -1808,14 +1991,17 @@ export default function App() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="relative z-20 py-10 border-t border-white/10 bg-[#040508]">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
+      {}
+      <footer className="relative z-20 py-8 sm:py-10 border-t border-white/10 bg-[#040508] safe-bottom">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60 text-center sm:text-left">
           <div>
             © 2026 DicksonGrafiks — Visuals That Speaks | Goodness N. Dickson
           </div>
-          <div className="flex items-center gap-6">
-            <span className="hover:text-white transition-colors cursor-pointer" onClick={() => scrollToSection('hero')}>
+          <div className="flex items-center gap-5">
+            <span
+              className="hover:text-white transition-colors cursor-pointer"
+              onClick={() => scrollToSection('hero')}
+            >
               Back to Top
             </span>
             <span className="text-white/30">•</span>
@@ -1824,7 +2010,7 @@ export default function App() {
         </div>
       </footer>
 
-      {/* MODALS */}
+      {}
       <VideoModal video={selectedVideo} onClose={() => setSelectedVideo(null)} />
       <ImageModal item={selectedImage} onClose={() => setSelectedImage(null)} />
     </div>
